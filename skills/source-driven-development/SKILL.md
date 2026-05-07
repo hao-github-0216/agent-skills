@@ -9,6 +9,21 @@ description: Grounds every implementation decision in official documentation. Us
 
 Every framework-specific code decision must be backed by official documentation. Don't implement from memory — verify, cite, and let the user see your sources. Training data goes stale, APIs get deprecated, best practices evolve. This skill ensures the user gets code they can trust because every pattern traces back to an authoritative source they can check.
 
+## ML / CUDA stack — version pinning is non-negotiable
+
+In this fork's domain, "framework-specific" mostly means the **PyTorch ↔ CUDA ↔ cuDNN ↔ GPU compute capability** stack. The matrix is unforgiving and silent failures are the rule, not the exception. Always verify before suggesting a config:
+
+| What to check | Why | How |
+|---|---|---|
+| PyTorch version vs. CUDA build | `torch==1.13+cu117` ≠ `torch==2.1+cu118`, link errors / NaN if mixed | `python -c "import torch; print(torch.__version__, torch.version.cuda)"` |
+| GPU compute capability vs. PyTorch's compiled-for arches | **H100 (sm_90) silently NaNs on PyTorch < 2.0 / cu117** — confirmed gotcha | `nvidia-smi --query-gpu=compute_cap --format=csv` then check `torch.cuda.get_arch_list()` |
+| cuDNN deterministic-mode availability for the op you need | Some ops have no deterministic kernel; `torch.use_deterministic_algorithms(True)` will crash | Check PyTorch docs page "Reproducibility" for the specific op |
+| Mixed precision (`autocast`) support for your dtype | bf16 needs Ampere+; fp16 supported everywhere but with overflow risk | PyTorch AMP docs |
+
+**Rule:** before suggesting "upgrade PyTorch" or "switch partition", confirm the GPU + driver + CUDA combo is supported by the target PyTorch version on the [PyTorch previous-versions page](https://pytorch.org/get-started/previous-versions/) (or current install matrix). Do not implement from memory — the matrix changes per PyTorch release.
+
+This is also why the H100 sm_90 gotcha is captured separately in `debugging-and-error-recovery`: it's a documented compat failure, not a mystery bug.
+
 ## When to Use
 
 - The user wants code that follows current best practices for a given framework

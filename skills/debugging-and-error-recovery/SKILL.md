@@ -1,13 +1,36 @@
 ---
 name: debugging-and-error-recovery
-description: Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing.
+description: Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, ML training NaN/diverges, CUDA errors fire, SLURM jobs fail, or any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing.
 ---
 
 # Debugging and Error Recovery
 
 ## Overview
 
-Systematic debugging with structured triage. When something breaks, stop adding features, preserve evidence, and follow a structured process to find and fix the root cause. Guessing wastes time. The triage checklist works for test failures, build errors, runtime bugs, and production incidents.
+Systematic debugging with structured triage. When something breaks, stop adding features, preserve evidence, and follow a structured process to find and fix the root cause. Guessing wastes time. The triage checklist works for test failures, build errors, runtime bugs, ML training failures, and SLURM job crashes.
+
+## ML / HPC failure-mode catalog (read this first)
+
+In this fork's domain (adversarial ML on howardserver + OSU HPC), most "unexpected behavior" falls into a small number of known modes. Match the symptom against this table BEFORE generic triage:
+
+| Symptom | Likely cause | First check |
+|---|---|---|
+| Loss → NaN within first ~100 steps on H100 (sm_90) | PyTorch < 2.0 + CUDA 11.7 silently miscompiles cuDNN kernels for sm_90 | Pin to `ampere` (sm_86) or upgrade PyTorch ≥ 2.1 + CUDA 11.8/12.x. Confirmed gotcha. |
+| `RuntimeError: CUDA out of memory` | Batch too large for the GPU you actually got | Check actual partition (`scontrol show job $SLURM_JOB_ID`); 3060 Ti has 8GB, A100 40/80GB, H100 80GB. Reduce `batch_size`, enable AMP, or escalate partition. |
+| Loss = NaN/Inf after some steps | Mixed precision overflow, exploding gradients, or bad data sample | Disable AMP and re-run; add `torch.autograd.set_detect_anomaly(True)` for one run; print min/max of inputs. |
+| Loss flat / accuracy stuck at chance | Optimizer not stepping, frozen params, wrong learning rate, or label/data mismatch | Print `param.grad.abs().mean()` for one batch; assert at least one param has nonzero grad. |
+| Model results don't match a previous run with "same" config | Non-determinism (seed, `torch.use_deterministic_algorithms`, dataloader workers, CUDA non-deterministic ops) | Set seeds (torch, numpy, random, cuda), `num_workers=0` for repro check, log the resolved config dict. |
+| DataLoader silently returns empty batches or wrong shapes | Path glob mismatch, transforms dropping samples, or `__len__` lying | `next(iter(dataloader))` and `print(batch.shape)` BEFORE the training loop. |
+| Job exits 0 but nothing was saved | Output dir wrong, `torch.save` to a path that doesn't exist on HPC | Print resolved abspath at job start; verify `~/<repo>/local_artifacts/<tag>/` populated after `poll.sh`. |
+| `git pull` from poll.sh shows no new commits | Job either crashed silently or wrote results but didn't `git push` | Check `~/<repo>/logs/<tag>*.{out,err}`; check `git log` on HPC clone vs GitHub. |
+| `srun` / `sbatch` fails with "no nodes available" | Wrong partition or partition is full | Check `sinfo -p ampere` for availability; the `dgxh200` partition is BANNED here — never use it. |
+| Submit hangs from howardserver | Submit node not directly reachable | Always go through `flip` jump host via `~/Bridge2HPC/hpc/submit.sh`, never plain ssh. |
+
+If the symptom matches none of these, fall through to the generic triage checklist below.
+
+## The Stop-the-Line Rule (also for ML training)
+
+For experiments specifically: **stop the SLURM job the moment you spot a known failure mode** (NaN, OOM after warmup, accuracy stuck at chance). Don't wait for the full 8h run to finish — costs compute and slot time. `scancel <jobid>` is cheap.
 
 ## When to Use
 

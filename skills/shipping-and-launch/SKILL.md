@@ -1,15 +1,66 @@
 ---
 name: shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: Prepares pre-launch readiness checks. In this fork's domain "shipping" primarily means submitting a SLURM job to OSU HPC, not a production deploy. Use before kicking off a long ML training run, when escalating partition, or (rarely) when actually deploying production software.
 ---
 
 # Shipping and Launch
 
 ## Overview
 
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+In this fork's domain, "ship" almost always means: **submit a non-trivial SLURM job to OSU HPC.** A failed Phase-1+ run is expensive — slot time, A100/H100 hours, and the cost of waiting hours to discover a config bug that a 3-minute sanity check would have caught. The goal is the same as production deploy: be reversible, observable, and incremental, even though the substrate is SLURM not Kubernetes.
 
-## When to Use
+The /ship slash command's parallel fan-out (code-reviewer + security-auditor + test-engineer) still helps for code-quality-gate purposes; just don't expect those personas to know about CUDA correctness or vault hygiene — that's what this skill's checklist below adds.
+
+## Pre-launch checklist for an HPC experiment run (use this first)
+
+Run through this BEFORE `bash ~/Bridge2HPC/hpc/submit.sh <project> <tag>`. If any item is unchecked, do not submit.
+
+### Code state
+- [ ] Local repo committed clean (`git status` is empty)
+- [ ] Pushed to origin (`git push` succeeded; HPC `git pull` will see this)
+- [ ] No leftover `print()` / `breakpoint()` / debug-only flags from sanity runs
+- [ ] Determinism: seeds set (torch + numpy + random + cuda), `torch.use_deterministic_algorithms` if needed
+
+### Vault cell
+- [ ] `~/vault/<Project>/Experiments/<tag>.md` exists (created BEFORE submit)
+- [ ] Hypothesis stated in plain language (one sentence)
+- [ ] Config dump pasted in (resolved values, not just CLI flags)
+- [ ] Phase / partition documented (sanity / ampere / dgxh) with rationale
+- [ ] Expected wall time noted — so you can spot a hung job
+
+### Phase gates
+- [ ] Phase 0 sanity already passed on howardserver local GPU (3060 Ti, ≤30 min) for THIS code
+- [ ] If escalating to `dgxh`: prior `ampere` run measured >6h AND cuDNN smoke test passed on H100. No skipping straight to H100.
+- [ ] Partition is NOT `dgxh200` (banned) and NOT `preempt` for non-smoke runs
+
+### Reproducibility
+- [ ] Code commit hash logged in vault cell
+- [ ] Conda env name + `pip freeze` snapshot saved (or env file referenced)
+- [ ] Data version / source pinned (no "latest" data symlinks)
+
+### Failure visibility
+- [ ] `~/<repo>/logs/<tag>.{out,err}` paths exist or will be created
+- [ ] `poll.sh` cron is alive on howardserver (else results won't auto-arrive)
+- [ ] At minimum a `git push` of intermediate metrics every N steps inside the train loop, so partial failure is observable
+
+### Submit
+- [ ] Submitting via `~/Bridge2HPC/hpc/submit.sh`, not direct ssh
+- [ ] Tag matches vault cell filename (cross-reference)
+
+### Post-submit (within 5 minutes)
+- [ ] `squeue -u hunghao` shows job in R or PD state
+- [ ] First few lines of `.out` log show expected env, GPU detected, dataset loaded
+- [ ] If first-step loss is NaN or stuck, `scancel` immediately — don't burn slot time
+
+## Rollback plan for experiments
+
+"Rollback" for a research run = `scancel <jobid>` + flip vault cell status from `running` to `failed` + write 1–2 sentence diagnosis. This is non-negotiable: a half-done run that's silently dead pollutes the ledger.
+
+---
+
+The remaining sections below are upstream's general production-launch checklist. Apply them only when you genuinely are deploying production software (rare in this fork's domain — research repos don't ship to users).
+
+## When to Use (production-deploy variant)
 
 - Deploying a feature to production for the first time
 - Releasing a significant change to users

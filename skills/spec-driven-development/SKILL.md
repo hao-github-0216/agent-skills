@@ -1,13 +1,27 @@
 ---
 name: spec-driven-development
-description: Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea.
+description: Creates specs before coding or running experiments. Use when starting a new project, feature, ML experiment, or significant change and no spec exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea.
 ---
 
 # Spec-Driven Development
 
 ## Overview
 
-Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+Write a structured specification before writing any code or kicking off any experiment. The spec is the shared source of truth — it defines what we're building (or what hypothesis we're testing), why, and how we'll know it's done. Code without a spec is guessing; experiments without a spec are compute waste.
+
+## Where the spec lives in this fork's domain
+
+For software changes: spec is a doc reviewed by the human, NOT committed to the repo (the repo stays clean of `.md` records — see root CLAUDE.md).
+
+For ML experiments specifically: the spec **is** the vault cell. One cell per experiment run, at:
+
+```
+~/vault/<Project>/Experiments/<tag>.md
+```
+
+A vault cell is a structured record with status enum (planned → running → done/failed), config dump, hypothesis, expected runtime, partition (sanity / ampere / dgxh), result link, and post-run notes. Its existence BEFORE submitting is what makes a run a deliberate experiment instead of a yolo. The `experiment-vault` skill covers the cell template — defer to it for format details.
+
+**Do NOT put experiment specs / results / decision logs into the GitHub repo as `.md` files.** Vault is the canonical journal. Repo stays clean.
 
 ## When to Use
 

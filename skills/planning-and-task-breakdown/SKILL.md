@@ -16,8 +16,37 @@ Decompose work into small, verifiable tasks with explicit acceptance criteria. G
 - Work needs to be parallelized across multiple agents or sessions
 - You need to communicate scope to a human
 - The implementation order isn't obvious
+- You're planning a multi-phase ML experiment campaign (sanity → ampere → dgxh)
 
 **When NOT to use:** Single-file changes with obvious scope, or when the spec already contains well-defined tasks.
+
+## ML experiment campaigns — partition escalation as the dependency graph
+
+For ML research planning, the dependency graph isn't "module A → module B" but **compute-tier escalation**. Always plan the cheap proof-of-life before the expensive run:
+
+```
+Phase 0: SANITY (howardserver local, RTX 3060 Ti, ≤30 min, ≤8GB)
+    │  Goal: code runs end-to-end, no exceptions, loss decreases for 100 steps
+    │  Cost: free (local)
+    │
+    ▼
+Phase 1: AMPERE (OSU HPC, A100 40/80GB, hours)
+    │  Goal: full training run on real data + real batch size
+    │  Cost: ~minutes-hours of A100 time
+    │
+    ▼
+Phase 2: DGXH (OSU HPC, H100, only if measured >6h on A100 + cuDNN smoke OK)
+       Goal: production-scale ablations
+       Cost: scarce; requires explicit escalation justification
+```
+
+`dgxh200` partition is BANNED here — never plan for it. `preempt` is for smoke runs only.
+
+Each phase is a checkpoint. **Failure at Phase N means do NOT advance** — diagnose and re-plan. Per-phase tasks should each have an "expected wall time" line so you can tell when something is hung.
+
+Every Phase ≥1 task gets a vault cell (`~/vault/<Project>/Experiments/<tag>.md`) created BEFORE submission. The cell IS the task's acceptance criteria container.
+
+See also `experiment-allocator` skill for picking the right partition per project's allocation rule.
 
 ## The Planning Process
 

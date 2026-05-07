@@ -9,9 +9,42 @@ description: Structures git workflow practices. Use when making any code change.
 
 Git is your safety net. Treat commits as save points, branches as sandboxes, and history as documentation. With AI agents generating code at high speed, disciplined version control is the mechanism that keeps changes manageable, reviewable, and reversible.
 
+In this fork's domain, git plays an additional role beyond version control: **it is the data transport between machines.**
+
 ## When to Use
 
-Always. Every code change flows through git.
+Always. Every code change flows through git. Every cross-device data transfer in this setup ALSO flows through git — never `scp` / `rsync` for results.
+
+## Git as data transport — the Bridge2HPC pattern
+
+This fork's owner runs experiments on OSU HPC and views results on howardserver. The wire between them is GitHub:
+
+```
+howardserver edit
+    ─ git push ─▶  GitHub (origin)
+                    │
+                    └─ git pull (HPC, manual or via Bridge2HPC submit.sh)
+                       │
+                       SLURM job runs
+                       │
+                       └─ at job end:  cd repo && git add results/ && git commit && git push
+                                         │
+                                         └─ howardserver cron runs ~/Bridge2HPC/howardserver/poll.sh
+                                            every 2 min → git pull → results land in
+                                            ~/<repo>/local_artifacts/<tag>/
+```
+
+**Implications for commit hygiene in this setup:**
+
+- Commit messages on the HPC side are how you find out what a run did weeks later. Include: run tag, partition, exit code, key metric (e.g. `[run/poison-eps8] dgxh, exit 0, ASR=0.34`).
+- The `results/` or `local_artifacts/` directory is intentionally git-tracked even though it's "outputs" — that's how transport works here. `.gitignore` should NOT block these paths in this user's repos.
+- Force-pushing main on a research repo can wipe in-flight result commits from HPC jobs. **Never `git push --force` on a repo that has live SLURM jobs writing to it.**
+- If `poll.sh` reports "no new commits" but a job is supposedly done, check the HPC clone: `ssh -J flip submit "cd <repo> && git log --oneline -5"`. The job may have crashed before its commit, or the push may have failed silently.
+
+## Repo policy specific to this fork
+
+- **No `.md` decision logs / experiment notes inside the repo.** Vault at `~/vault/<Project>/` is the journal. The repo is for code only. If you find yourself wanting to commit `EXPERIMENTS.md` or `NOTES.md`, redirect to a vault cell instead.
+- **Never use long-lived per-machine branches** for personal customization. One `main`, shared across howardserver / HPC / Mac. (Per-machine differences live OUTSIDE the repo: in `~/.claude/skills/` or dotfiles.) The `agent-skills-fork-dev` user-scope skill encodes this rule.
 
 ## Core Principles
 
