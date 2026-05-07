@@ -47,14 +47,39 @@ references/   → Supplementary checklists (testing, performance, security, acce
 docs/         → Setup guides for different tools
 ```
 
-## Skills by Phase
+## Skills by Phase (this fork's vocabulary)
 
-**Define:** spec-driven-development
-**Plan:** planning-and-task-breakdown
-**Build:** incremental-implementation, test-driven-development, context-engineering, source-driven-development, frontend-ui-engineering, api-and-interface-design
-**Verify:** browser-testing-with-devtools, debugging-and-error-recovery
-**Review:** code-review-and-quality, code-simplification, security-and-hardening, performance-optimization
-**Ship:** git-workflow-and-versioning, ci-cd-and-automation, deprecation-and-migration, documentation-and-adrs, shipping-and-launch
+Reframed for the ML/HPC workflow described above. Web-only skills (`frontend-ui-engineering`, `browser-testing-with-devtools`) were removed — see git history of `[phase B]` commit if you need to restore.
+
+**Define** (write the experiment spec / code spec):
+- `spec-driven-development` — for ML runs the "spec" lives in `~/vault/<Project>/Experiments/<tag>.md`, not in the repo
+- `idea-refine` — when the hypothesis itself is fuzzy
+
+**Plan** (decompose into phased tasks):
+- `planning-and-task-breakdown` — for ML campaigns the dependency graph is partition escalation: sanity (3060 Ti) → ampere (A100) → dgxh (H100). Each phase is a checkpoint.
+
+**Build** (write code on howardserver, sanity-run locally):
+- `incremental-implementation` — thin slices, sanity-run each before scaling up
+- `context-engineering` — set up CLAUDE.md / agent context for the project
+- `source-driven-development` — verify against PyTorch ↔ CUDA ↔ sm_xx matrix BEFORE suggesting an upgrade
+- `api-and-interface-design` — only when defining a Python module's public surface (not REST APIs)
+
+**Verify** (catch failure cheap, before HPC):
+- `test-driven-development` — Prove-It pattern for bugs, gradient/seed checks for ML code
+- `debugging-and-error-recovery` — read its ML/HPC failure-mode catalog before generic triage
+
+**Review** (gate before submit / merge):
+- `code-review-and-quality` — five-axis review
+- `code-simplification` — research code drift makes this perpetually relevant
+- `security-and-hardening` — low priority unless adversarial defenses involve untrusted input parsing
+- `performance-optimization` — biased to web stuff upstream; for ML throughput / kernel selection, treat as a pointer not a recipe
+
+**Ship** (submit to HPC, or push results back):
+- `shipping-and-launch` — read its HPC experiment pre-launch checklist; the production-deploy variant is fallback only
+- `git-workflow-and-versioning` — git is data transport here, not just version control. Bridge2HPC pattern documented inside.
+- `documentation-and-adrs` — for genuine architectural decisions, but routine experiment notes go in vault, NOT as repo `.md` files
+- `ci-cd-and-automation` — the local equivalent is `~/Bridge2HPC/howardserver/poll.sh` (cron-driven); not a typical CI pipeline
+- `deprecation-and-migration` — relevant when retiring a project / vault folder
 
 ## Conventions
 
