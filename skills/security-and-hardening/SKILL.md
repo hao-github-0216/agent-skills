@@ -1,55 +1,55 @@
 ---
 name: security-and-hardening
-description: Hardens code against vulnerabilities. Use when handling user input, authentication, data storage, or external integrations. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services.
+description: 強化程式碼以抵禦漏洞。處理 user input、authentication、資料儲存或外部整合時使用。在打造任何接受不可信資料、管理 user session 或與第三方服務互動的功能時也適用。English: Hardens code against vulnerabilities. Use when handling user input, authentication, data storage, or external integrations. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services.
 ---
 
 # Security and Hardening
 
 ## Overview
 
-Security-first development practices for web applications. Treat every external input as hostile, every secret as sacred, and every authorization check as mandatory. Security isn't a phase — it's a constraint on every line of code that touches user data, authentication, or external systems.
+以 security 為優先的 web application 開發實務。視所有外部輸入為敵意、視所有 secret 為神聖、視所有 authorization check 為必要。Security 不是某個階段 — 它是每一行碰到 user data、authentication 或外部系統的程式碼都要遵守的限制。
 
 ## When to Use
 
-- Building anything that accepts user input
-- Implementing authentication or authorization
-- Storing or transmitting sensitive data
-- Integrating with external APIs or services
-- Adding file uploads, webhooks, or callbacks
-- Handling payment or PII data
+- 打造任何接受 user input 的東西
+- 實作 authentication 或 authorization
+- 儲存或傳輸敏感資料
+- 與外部 API 或服務整合
+- 加入檔案上傳、webhook 或 callback
+- 處理付款或 PII 資料
 
 ## The Three-Tier Boundary System
 
 ### Always Do (No Exceptions)
 
-- **Validate all external input** at the system boundary (API routes, form handlers)
-- **Parameterize all database queries** — never concatenate user input into SQL
-- **Encode output** to prevent XSS (use framework auto-escaping, don't bypass it)
-- **Use HTTPS** for all external communication
-- **Hash passwords** with bcrypt/scrypt/argon2 (never store plaintext)
-- **Set security headers** (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- **Use httpOnly, secure, sameSite cookies** for sessions
-- **Run `npm audit`** (or equivalent) before every release
+- **驗證所有外部輸入**，在系統邊界進行（API routes、form handlers）
+- **所有 database query 都要 parameterize** — 永遠不要把 user input 串接進 SQL
+- **對輸出做 encoding** 以防 XSS（用 framework 的自動跳脫，不要繞過它）
+- 所有外部通訊都使用 **HTTPS**
+- **以 bcrypt/scrypt/argon2 hash 密碼**（永不儲存明文）
+- **設定 security headers**（CSP、HSTS、X-Frame-Options、X-Content-Type-Options）
+- **session 使用 httpOnly、secure、sameSite cookie**
+- 每次發版前執行 **`npm audit`**（或同等工具）
 
 ### Ask First (Requires Human Approval)
 
-- Adding new authentication flows or changing auth logic
-- Storing new categories of sensitive data (PII, payment info)
-- Adding new external service integrations
-- Changing CORS configuration
-- Adding file upload handlers
-- Modifying rate limiting or throttling
-- Granting elevated permissions or roles
+- 加入新的 authentication flow 或變更 auth 邏輯
+- 儲存新類別的敏感資料（PII、付款資訊）
+- 加入新的外部服務整合
+- 變更 CORS 設定
+- 加入檔案上傳處理
+- 修改 rate limiting 或 throttling
+- 授予提升的權限或角色
 
 ### Never Do
 
-- **Never commit secrets** to version control (API keys, passwords, tokens)
-- **Never log sensitive data** (passwords, tokens, full credit card numbers)
-- **Never trust client-side validation** as a security boundary
-- **Never disable security headers** for convenience
-- **Never use `eval()` or `innerHTML`** with user-provided data
-- **Never store sessions in client-accessible storage** (localStorage for auth tokens)
-- **Never expose stack traces** or internal error details to users
+- **絕不把 secret commit** 進版本控制（API key、密碼、token）
+- **絕不 log 敏感資料**（密碼、token、完整信用卡號）
+- **絕不把 client-side validation 當作 security 邊界**
+- **絕不為了方便而停用 security headers**
+- **絕不對 user-provided data 使用 `eval()` 或 `innerHTML`**
+- **絕不把 session 存在 client 可存取的儲存空間**（如把 auth token 放在 localStorage）
+- **絕不向使用者暴露 stack trace** 或內部錯誤細節
 
 ## OWASP Top 10 Prevention
 
@@ -165,7 +165,7 @@ if (!API_KEY) throw new Error('STRIPE_API_KEY not configured');
 
 ## Input Validation Patterns
 
-### Schema Validation at Boundaries
+### 在邊界做 Schema Validation
 
 ```typescript
 import { z } from 'zod';
@@ -195,7 +195,7 @@ app.post('/api/tasks', async (req, res) => {
 });
 ```
 
-### File Upload Safety
+### 檔案上傳安全
 
 ```typescript
 // Restrict file types and sizes
@@ -215,7 +215,7 @@ function validateUpload(file: UploadedFile) {
 
 ## Triaging npm audit Results
 
-Not all audit findings require immediate action. Use this decision tree:
+並非所有 audit 結果都需要立刻處理。可使用以下決策樹：
 
 ```
 npm audit reports a vulnerability
@@ -233,12 +233,12 @@ npm audit reports a vulnerability
     └── Track and fix during regular dependency updates
 ```
 
-**Key questions:**
-- Is the vulnerable function actually called in your code path?
-- Is the dependency a runtime dependency or dev-only?
-- Is the vulnerability exploitable given your deployment context (e.g., a server-side vulnerability in a client-only app)?
+**關鍵問題：**
+- 該漏洞函式是否真的會在你的程式碼路徑中被呼叫？
+- 該 dependency 是 runtime dependency 還是僅 dev-only？
+- 在你部署的情境下該漏洞是否可被利用（例如某個 server-side 漏洞用在 client-only app 上）？
 
-When you defer a fix, document the reason and set a review date.
+當你決定延後修復時，記下原因並設定一個 review 日期。
 
 ## Rate Limiting
 
@@ -276,7 +276,7 @@ app.use('/api/auth/', rateLimit({
   *.key
 ```
 
-**Always check before committing:**
+**commit 前永遠先檢查：**
 ```bash
 # Check for accidentally staged secrets
 git diff --cached | grep -i "password\|secret\|api_key\|token"
@@ -314,36 +314,36 @@ git diff --cached | grep -i "password\|secret\|api_key\|token"
 ```
 ## See Also
 
-For detailed security checklists and pre-commit verification steps, see `references/security-checklist.md`.
+關於詳盡的 security checklist 與 pre-commit 驗證步驟，請見 `references/security-checklist.md`。
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "This is an internal tool, security doesn't matter" | Internal tools get compromised. Attackers target the weakest link. |
-| "We'll add security later" | Security retrofitting is 10x harder than building it in. Add it now. |
-| "No one would try to exploit this" | Automated scanners will find it. Security by obscurity is not security. |
-| "The framework handles security" | Frameworks provide tools, not guarantees. You still need to use them correctly. |
-| "It's just a prototype" | Prototypes become production. Security habits from day one. |
+| 「這只是內部工具，security 沒那麼重要」 | 內部工具一樣會被入侵。攻擊者鎖定最弱的一環。 |
+| 「之後再補 security」 | 事後補強的成本是當下做好的 10 倍。現在就加。 |
+| 「沒人會試圖攻擊這個」 | 自動化掃描器會找到它。靠隱蔽性的 security 不算 security。 |
+| 「framework 會處理 security」 | framework 提供工具，而不是保證。你還是得正確使用它們。 |
+| 「這只是 prototype」 | Prototype 會變 production。從第一天就建立 security 習慣。 |
 
 ## Red Flags
 
-- User input passed directly to database queries, shell commands, or HTML rendering
-- Secrets in source code or commit history
-- API endpoints without authentication or authorization checks
-- Missing CORS configuration or wildcard (`*`) origins
-- No rate limiting on authentication endpoints
-- Stack traces or internal errors exposed to users
-- Dependencies with known critical vulnerabilities
+- user input 直接傳進 database query、shell command 或 HTML render
+- secret 出現在原始碼或 commit 紀錄裡
+- API endpoint 沒有 authentication 或 authorization 檢查
+- 缺少 CORS 設定，或使用 wildcard（`*`）origin
+- authentication endpoint 沒有 rate limiting
+- 將 stack trace 或內部錯誤暴露給使用者
+- 使用了已知含 critical 漏洞的 dependency
 
 ## Verification
 
-After implementing security-relevant code:
+實作完 security 相關程式碼後：
 
-- [ ] `npm audit` shows no critical or high vulnerabilities
-- [ ] No secrets in source code or git history
-- [ ] All user input validated at system boundaries
-- [ ] Authentication and authorization checked on every protected endpoint
-- [ ] Security headers present in response (check with browser DevTools)
-- [ ] Error responses don't expose internal details
-- [ ] Rate limiting active on auth endpoints
+- [ ] `npm audit` 沒有 critical 或 high 的漏洞
+- [ ] 原始碼或 git 歷史中沒有 secret
+- [ ] 所有 user input 都在系統邊界經過驗證
+- [ ] 所有受保護 endpoint 都檢查 authentication 與 authorization
+- [ ] response 中存在 security headers（用 browser DevTools 檢查）
+- [ ] error response 不會暴露內部細節
+- [ ] auth endpoint 啟用 rate limiting

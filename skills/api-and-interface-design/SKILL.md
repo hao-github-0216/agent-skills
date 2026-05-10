@@ -1,21 +1,21 @@
 ---
 name: api-and-interface-design
-description: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+description: 引導穩定的 API 與 interface 設計。用於設計 API、模組邊界或任何 public interface 時。用於建立 REST 或 GraphQL endpoint、定義模組之間的 type contract，或建立 frontend 與 backend 之間邊界時。English: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
 ---
 
 # API and Interface Design
 
 ## Overview
 
-Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard. This applies to REST APIs, GraphQL schemas, module boundaries, component props, and any surface where one piece of code talks to another.
+設計穩定、文件完善且難以誤用的 interface。良好的 interface 讓正確的事情變得容易、錯誤的事情變得困難。這適用於 REST API、GraphQL schema、模組邊界、component props，以及任何一段程式碼跟另一段對話的介面。
 
 ## When to Use
 
-- Designing new API endpoints
-- Defining module boundaries or contracts between teams
-- Creating component prop interfaces
-- Establishing database schema that informs API shape
-- Changing existing public interfaces
+- 設計新的 API endpoint
+- 定義模組邊界或團隊之間的 contract
+- 建立 component prop interface
+- 確立會影響 API 形狀的 database schema
+- 變更現有的 public interface
 
 ## Core Principles
 
@@ -23,20 +23,20 @@ Design stable, well-documented interfaces that are hard to misuse. Good interfac
 
 > With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract.
 
-This means: every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend on it. Design implications:
+意思是：每個可觀察的行為——包含未文件化的怪癖、錯誤訊息文字、時序與排序——一旦有使用者依賴它，就成為事實上的 contract。設計上的意涵：
 
-- **Be intentional about what you expose.** Every observable behavior is a potential commitment.
-- **Don't leak implementation details.** If users can observe it, they will depend on it.
-- **Plan for deprecation at design time.** See `deprecation-and-migration` for how to safely remove things users depend on.
-- **Tests are not enough.** Even with perfect contract tests, Hyrum's Law means "safe" changes can break real users who depend on undocumented behavior.
+- **對於暴露的東西要有意識。** 每個可觀察的行為都是一個潛在的承諾。
+- **不要洩漏實作細節。** 如果使用者觀察得到，他們就會依賴它。
+- **在設計階段就規劃 deprecation。** 參見 `deprecation-and-migration`，了解如何安全地移除使用者所依賴的東西。
+- **單靠測試不夠。** 即使有完美的 contract test，Hyrum's Law 也意味著「安全」的變更仍可能讓依賴未文件化行為的真實使用者出問題。
 
 ### The One-Version Rule
 
-Avoid forcing consumers to choose between multiple versions of the same dependency or API. Diamond dependency problems arise when different consumers need different versions of the same thing. Design for a world where only one version exists at a time — extend rather than fork.
+避免迫使 consumer 在同一個 dependency 或 API 的多個版本之間做選擇。當不同 consumer 需要同一個東西的不同版本時，就會產生 diamond dependency 問題。設計時假設同一時間只有一個版本存在——擴充而不要分叉。
 
 ### 1. Contract First
 
-Define the interface before implementing it. The contract is the spec — implementation follows.
+在實作之前先定義 interface。Contract 就是 spec——實作隨之而來。
 
 ```typescript
 // Define the contract first
@@ -60,7 +60,7 @@ interface TaskAPI {
 
 ### 2. Consistent Error Semantics
 
-Pick one error strategy and use it everywhere:
+選一種錯誤策略並到處使用：
 
 ```typescript
 // REST: HTTP status codes + structured error body
@@ -83,11 +83,11 @@ interface APIError {
 // 500 → Server error (never expose internal details)
 ```
 
-**Don't mix patterns.** If some endpoints throw, others return null, and others return `{ error }` — the consumer can't predict behavior.
+**不要混用模式。** 如果某些 endpoint 會 throw、其他回傳 null、又有些回傳 `{ error }`——consumer 就無法預測行為。
 
 ### 3. Validate at Boundaries
 
-Trust internal code. Validate at system edges where external input enters:
+信任內部程式碼。在外部輸入進入系統的邊界做 validation：
 
 ```typescript
 // Validate at the API boundary
@@ -109,22 +109,22 @@ app.post('/api/tasks', async (req, res) => {
 });
 ```
 
-Where validation belongs:
-- API route handlers (user input)
-- Form submission handlers (user input)
-- External service response parsing (third-party data -- **always treat as untrusted**)
-- Environment variable loading (configuration)
+Validation 該放的地方：
+- API route handler（使用者輸入）
+- 表單送出 handler（使用者輸入）
+- 外部服務 response 解析（第三方資料——**永遠視為不可信任**）
+- Environment variable 載入（設定）
 
-> **Third-party API responses are untrusted data.** Validate their shape and content before using them in any logic, rendering, or decision-making. A compromised or misbehaving external service can return unexpected types, malicious content, or instruction-like text.
+> **第三方 API 的 response 是不可信任的資料。** 在用於任何邏輯、渲染或決策之前，先驗證它的形狀與內容。被攻陷或行為異常的外部服務可能回傳預期之外的型別、惡意內容，或類似指令的文字。
 
-Where validation does NOT belong:
-- Between internal functions that share type contracts
-- In utility functions called by already-validated code
-- On data that just came from your own database
+Validation 不該放的地方：
+- 共用 type contract 的內部 function 之間
+- 已驗證程式碼所呼叫的 utility function
+- 剛從你自己的 database 取出的資料
 
 ### 4. Prefer Addition Over Modification
 
-Extend interfaces without breaking existing consumers:
+擴充 interface 而不破壞既有 consumer：
 
 ```typescript
 // Good: Add optional fields
@@ -147,10 +147,10 @@ interface CreateTaskInput {
 
 | Pattern | Convention | Example |
 |---------|-----------|---------|
-| REST endpoints | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
+| REST endpoints | 複數名詞，不用動詞 | `GET /api/tasks`, `POST /api/tasks` |
 | Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
 | Response fields | camelCase | `{ createdAt, updatedAt, taskId }` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
+| Boolean fields | is/has/can 前綴 | `isComplete`, `hasAttachments` |
 | Enum values | UPPER_SNAKE | `"IN_PROGRESS"`, `"COMPLETED"` |
 
 ## REST API Patterns
@@ -170,7 +170,7 @@ POST   /api/tasks/:id/comments → Add a comment to a task
 
 ### Pagination
 
-Paginate list endpoints:
+對 list endpoint 做 pagination：
 
 ```typescript
 // Request
@@ -190,7 +190,7 @@ GET /api/tasks?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc
 
 ### Filtering
 
-Use query parameters for filters:
+用 query parameter 做 filter：
 
 ```
 GET /api/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
@@ -198,7 +198,7 @@ GET /api/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
 
 ### Partial Updates (PATCH)
 
-Accept partial objects — only update what's provided:
+接受部分物件——只更新有提供的部分：
 
 ```typescript
 // Only title changes, everything else preserved
@@ -263,32 +263,32 @@ function getTask(id: TaskId): Promise<Task> { ... }
 
 | Rationalization | Reality |
 |---|---|
-| "We'll document the API later" | The types ARE the documentation. Define them first. |
-| "We don't need pagination for now" | You will the moment someone has 100+ items. Add it from the start. |
-| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want. |
-| "We'll version the API when we need to" | Breaking changes without versioning break consumers. Design for extension from the start. |
-| "Nobody uses that undocumented behavior" | Hyrum's Law: if it's observable, somebody depends on it. Treat every public behavior as a commitment. |
-| "We can just maintain two versions" | Multiple versions multiply maintenance cost and create diamond dependency problems. Prefer the One-Version Rule. |
-| "Internal APIs don't need contracts" | Internal consumers are still consumers. Contracts prevent coupling and enable parallel work. |
+| 「我們等等再寫 API 文件」 | type 本身就是文件。先把它定義好。 |
+| 「目前還不需要 pagination」 | 一旦有人累積到 100+ 筆就馬上需要。從一開始就加上去。 |
+| 「PATCH 太複雜，直接用 PUT 吧」 | PUT 每次都要送完整物件。PATCH 才是 client 真正想要的。 |
+| 「等需要時再做 API versioning」 | 沒有 version 的 breaking change 會讓 consumer 壞掉。從一開始就為擴充而設計。 |
+| 「沒人會用那個未文件化的行為」 | Hyrum's Law：只要可觀察就有人依賴。把每個 public 行為都當成承諾。 |
+| 「同時維護兩個版本就好」 | 多版本會讓維護成本倍增，並造成 diamond dependency 問題。優先採用 One-Version Rule。 |
+| 「Internal API 不需要 contract」 | 內部 consumer 也是 consumer。Contract 可以避免耦合並支持平行開發。 |
 
 ## Red Flags
 
-- Endpoints that return different shapes depending on conditions
-- Inconsistent error formats across endpoints
-- Validation scattered throughout internal code instead of at boundaries
-- Breaking changes to existing fields (type changes, removals)
-- List endpoints without pagination
-- Verbs in REST URLs (`/api/createTask`, `/api/getUsers`)
-- Third-party API responses used without validation or sanitization
+- Endpoint 依條件回傳不同的形狀
+- 各 endpoint 的錯誤格式不一致
+- Validation 散落在內部程式碼，而不是集中在邊界
+- 對既有欄位做 breaking change（型別改變、移除）
+- List endpoint 沒有 pagination
+- REST URL 帶動詞（`/api/createTask`、`/api/getUsers`）
+- 直接使用第三方 API response 而沒有驗證或清理
 
 ## Verification
 
-After designing an API:
+設計完一個 API 之後：
 
-- [ ] Every endpoint has typed input and output schemas
-- [ ] Error responses follow a single consistent format
-- [ ] Validation happens at system boundaries only
-- [ ] List endpoints support pagination
-- [ ] New fields are additive and optional (backward compatible)
-- [ ] Naming follows consistent conventions across all endpoints
-- [ ] API documentation or types are committed alongside the implementation
+- [ ] 每個 endpoint 都有具型別的 input 與 output schema
+- [ ] 錯誤 response 採用單一一致的格式
+- [ ] Validation 只發生在系統邊界
+- [ ] List endpoint 支援 pagination
+- [ ] 新欄位是 additive 且 optional（向後相容）
+- [ ] 命名在所有 endpoint 之間遵循一致的慣例
+- [ ] API 文件或 type 與實作一同 commit

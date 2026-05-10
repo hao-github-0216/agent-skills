@@ -1,23 +1,23 @@
 ---
 name: performance-optimization
-description: Optimizes application performance. Use when performance requirements exist, when you suspect performance regressions, or when Core Web Vitals or load times need improvement. Use when profiling reveals bottlenecks that need fixing.
+description: 為應用程式做 performance 最佳化。當有 performance 需求、懷疑有 performance regression、或需要改善 Core Web Vitals 或 load time 時使用。當 profiling 找出需要修的 bottleneck 時使用。English: Optimizes application performance. Use when performance requirements exist, when you suspect performance regressions, or when Core Web Vitals or load times need improvement. Use when profiling reveals bottlenecks that need fixing.
 ---
 
 # Performance Optimization
 
 ## Overview
 
-Measure before optimizing. Performance work without measurement is guessing — and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
+最佳化前先量測。沒有量測的 performance 工作就是猜測 — 而猜測會導致 premature optimization，加上複雜度卻沒改善真正重要的東西。先 profile、找出真正的 bottleneck、修它、再量一次。只最佳化量測證明重要的東西。
 
 ## When to Use
 
-- Performance requirements exist in the spec (load time budgets, response time SLAs)
-- Users or monitoring report slow behavior
-- Core Web Vitals scores are below thresholds
-- You suspect a change introduced a regression
-- Building features that handle large datasets or high traffic
+- spec 中有 performance 需求（load time 預算、回應時間 SLA）
+- 使用者或監控系統回報變慢
+- Core Web Vitals 分數低於門檻
+- 你懷疑某個變更引入了 regression
+- 在打造處理大資料集或高流量的 feature
 
-**When NOT to use:** Don't optimize before you have evidence of a problem. Premature optimization adds complexity that costs more than the performance it gains.
+**何時不要用：** 在還沒有問題證據時不要最佳化。premature optimization 增加的複雜度成本，會大過它換來的 performance。
 
 ## Core Web Vitals Targets
 
@@ -39,12 +39,12 @@ Measure before optimizing. Performance work without measurement is guessing — 
 
 ### Step 1: Measure
 
-Two complementary approaches — use both:
+兩種互補的方法 — 都要用：
 
-- **Synthetic (Lighthouse, DevTools Performance tab):** Controlled conditions, reproducible. Best for CI regression detection and isolating specific issues.
-- **RUM (web-vitals library, CrUX):** Real user data in real conditions. Required to validate that a fix actually improved user experience.
+- **Synthetic（Lighthouse、DevTools Performance tab）：** 受控條件、可重現。最適合 CI 上的 regression 偵測與隔離特定問題。
+- **RUM（web-vitals library、CrUX）：** 真實使用者在真實條件下的資料。是驗證修補真的改善了使用者體驗的必要條件。
 
-**Frontend:**
+**Frontend：**
 ```bash
 # Synthetic: Lighthouse in Chrome DevTools (or CI)
 # Chrome DevTools → Performance tab → Record
@@ -58,7 +58,7 @@ onINP(console.log);
 onCLS(console.log);
 ```
 
-**Backend:**
+**Backend：**
 ```bash
 # Response time logging
 # Application Performance Monitoring (APM)
@@ -72,7 +72,7 @@ console.timeEnd('db-query');
 
 ### Where to Start Measuring
 
-Use the symptom to decide what to measure first:
+用症狀來決定先量什麼：
 
 ```
 What is slow?
@@ -98,25 +98,25 @@ What is slow?
 
 ### Step 2: Identify the Bottleneck
 
-Common bottlenecks by category:
+依類別常見的 bottleneck：
 
-**Frontend:**
-
-| Symptom | Likely Cause | Investigation |
-|---------|-------------|---------------|
-| Slow LCP | Large images, render-blocking resources, slow server | Check network waterfall, image sizes |
-| High CLS | Images without dimensions, late-loading content, font shifts | Check layout shift attribution |
-| Poor INP | Heavy JavaScript on main thread, large DOM updates | Check long tasks in Performance trace |
-| Slow initial load | Large bundle, many network requests | Check bundle size, code splitting |
-
-**Backend:**
+**Frontend：**
 
 | Symptom | Likely Cause | Investigation |
 |---------|-------------|---------------|
-| Slow API responses | N+1 queries, missing indexes, unoptimized queries | Check database query log |
-| Memory growth | Leaked references, unbounded caches, large payloads | Heap snapshot analysis |
-| CPU spikes | Synchronous heavy computation, regex backtracking | CPU profiling |
-| High latency | Missing caching, redundant computation, network hops | Trace requests through the stack |
+| LCP 慢 | 大圖、render-blocking 資源、server 慢 | 檢查 network waterfall、圖片大小 |
+| CLS 高 | 沒寫尺寸的圖片、晚載入的內容、字型 shift | 檢查 layout shift attribution |
+| INP 差 | main thread 上的重 JavaScript、大量 DOM 更新 | 在 Performance trace 裡找 long task |
+| 初始載入慢 | bundle 大、network request 多 | 檢查 bundle size、code splitting |
+
+**Backend：**
+
+| Symptom | Likely Cause | Investigation |
+|---------|-------------|---------------|
+| API 回應慢 | N+1 query、缺 index、未最佳化的 query | 檢查 database query log |
+| 記憶體成長 | reference 洩漏、無上限 cache、payload 過大 | heap snapshot 分析 |
+| CPU 飆高 | 同步的重運算、regex backtracking | CPU profiling |
+| latency 高 | 缺 cache、重複運算、network hop | 把 request 跨 stack 做 trace |
 
 ### Step 3: Fix Common Anti-Patterns
 
@@ -291,7 +291,7 @@ res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
 
 ## Performance Budget
 
-Set budgets and enforce them:
+訂下預算並強制執行：
 
 ```
 JavaScript bundle: < 200KB gzipped (initial load)
@@ -303,7 +303,7 @@ Time to Interactive: < 3.5s on 4G
 Lighthouse Performance score: ≥ 90
 ```
 
-**Enforce in CI:**
+**在 CI 上強制執行：**
 ```bash
 # Bundle size check
 npx bundlesize --config bundlesize.config.json
@@ -314,37 +314,37 @@ npx lhci autorun
 
 ## See Also
 
-For detailed performance checklists, optimization commands, and anti-pattern reference, see `references/performance-checklist.md`.
+關於詳細的 performance checklist、最佳化指令、anti-pattern 參考，見 `references/performance-checklist.md`。
 
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "We'll optimize later" | Performance debt compounds. Fix obvious anti-patterns now, defer micro-optimizations. |
-| "It's fast on my machine" | Your machine isn't the user's. Profile on representative hardware and networks. |
-| "This optimization is obvious" | If you didn't measure, you don't know. Profile first. |
-| "Users won't notice 100ms" | Research shows 100ms delays impact conversion rates. Users notice more than you think. |
-| "The framework handles performance" | Frameworks prevent some issues but can't fix N+1 queries or oversized bundles. |
+| 「我們之後再最佳化」 | performance 債會疊加。明顯的 anti-pattern 現在就修，micro-optimization 才延後。 |
+| 「在我電腦上很快」 | 你的電腦不是使用者的。在有代表性的硬體與網路上 profile。 |
+| 「這個最佳化很明顯」 | 如果你沒量，你就不知道。先 profile。 |
+| 「使用者不會注意到 100ms」 | 研究顯示 100ms 的延遲會影響轉換率。使用者比你想的更有感。 |
+| 「framework 會處理 performance」 | framework 能擋掉一些問題，但修不了 N+1 query 或過大的 bundle。 |
 
 ## Red Flags
 
-- Optimization without profiling data to justify it
-- N+1 query patterns in data fetching
-- List endpoints without pagination
-- Images without dimensions, lazy loading, or responsive sizes
-- Bundle size growing without review
-- No performance monitoring in production
-- `React.memo` and `useMemo` everywhere (overusing is as bad as underusing)
+- 沒有 profiling 資料佐證就最佳化
+- 資料抓取裡有 N+1 query pattern
+- 列表 endpoint 沒有 pagination
+- 圖片沒有尺寸、lazy loading、或 responsive size
+- bundle size 沒人 review 就一直成長
+- production 上沒有 performance 監控
+- `React.memo` 跟 `useMemo` 滿天飛（過度使用跟用得不夠一樣糟）
 
 ## Verification
 
-After any performance-related change:
+任何 performance 相關變更之後：
 
-- [ ] Before and after measurements exist (specific numbers)
-- [ ] The specific bottleneck is identified and addressed
-- [ ] Core Web Vitals are within "Good" thresholds
-- [ ] Bundle size hasn't increased significantly
-- [ ] No N+1 queries in new data fetching code
-- [ ] Performance budget passes in CI (if configured)
-- [ ] Existing tests still pass (optimization didn't break behavior)
+- [ ] 有 before 跟 after 的量測（具體數字）
+- [ ] 確切的 bottleneck 已被找出並處理
+- [ ] Core Web Vitals 落在「Good」門檻內
+- [ ] bundle size 沒有顯著成長
+- [ ] 新的資料抓取程式碼裡沒有 N+1 query
+- [ ] performance 預算在 CI 上通過（如有設定）
+- [ ] 既有 test 仍然通過（最佳化沒破壞行為）

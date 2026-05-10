@@ -1,27 +1,27 @@
 ---
 name: test-driven-development
-description: Drives development with tests. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality.
+description: 用 test 驅動開發。實作任何邏輯、修任何 bug、改任何行為時都使用。當你需要證明 code 真的能跑、收到 bug report、或即將修改既有功能時使用。English: Drives development with tests. Use when implementing any logic, fixing any bug, or changing any behavior. Use when you need to prove that code works, when a bug report arrives, or when you're about to modify existing functionality.
 ---
 
 # Test-Driven Development
 
-## Overview
+## 概覽
 
-Write a failing test before writing the code that makes it pass. For bug fixes, reproduce the bug with a test before attempting a fix. Tests are proof — "seems right" is not done. A codebase with good tests is an AI agent's superpower; a codebase without tests is a liability.
+在寫讓 test 通過的 code 之前，先寫一個會 fail 的 test。修 bug 時，先用 test 重現 bug 再嘗試修。Test 是證據 ——「看起來對」不算完成。Test 寫得好的 codebase 是 AI agent 的超能力；沒有 test 的 codebase 則是負債。
 
-## When to Use
+## 何時使用
 
-- Implementing any new logic or behavior
-- Fixing any bug (the Prove-It Pattern)
-- Modifying existing functionality
-- Adding edge case handling
-- Any change that could break existing behavior
+- 實作任何新邏輯或行為
+- 修任何 bug（Prove-It Pattern）
+- 修改既有功能
+- 加入 edge case 處理
+- 任何可能破壞既有行為的變更
 
-**When NOT to use:** Pure configuration changes, documentation updates, or static content changes that have no behavioral impact.
+**何時不用：** 純設定變更、文件更新，或對行為毫無影響的靜態內容變更。
 
-**Related:** For browser-based changes, combine TDD with runtime verification using Chrome DevTools MCP — see the Browser Testing section below.
+**相關：** 涉及瀏覽器的變更，請把 TDD 結合 Chrome DevTools MCP 做執行期驗證 —— 見下方 Browser Testing 段落。
 
-## The TDD Cycle
+## TDD Cycle
 
 ```
     RED                GREEN              REFACTOR
@@ -32,9 +32,9 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
    Test FAILS        Test PASSES         Tests still PASS
 ```
 
-### Step 1: RED — Write a Failing Test
+### Step 1：RED —— 寫一個會 fail 的 test
 
-Write the test first. It must fail. A test that passes immediately proves nothing.
+先寫 test，它必須 fail。一個一開始就 pass 的 test 什麼都沒證明。
 
 ```typescript
 // RED: This test fails because createTask doesn't exist yet
@@ -50,9 +50,9 @@ describe('TaskService', () => {
 });
 ```
 
-### Step 2: GREEN — Make It Pass
+### Step 2：GREEN —— 讓它過
 
-Write the minimum code to make the test pass. Don't over-engineer:
+寫最少的 code 讓 test 通過。不要過度設計：
 
 ```typescript
 // GREEN: Minimal implementation
@@ -68,20 +68,20 @@ export async function createTask(input: { title: string }): Promise<Task> {
 }
 ```
 
-### Step 3: REFACTOR — Clean Up
+### Step 3：REFACTOR —— 整理乾淨
 
-With tests green, improve the code without changing behavior:
+Test 都綠了之後，在不改變行為的前提下改進 code：
 
-- Extract shared logic
-- Improve naming
-- Remove duplication
-- Optimize if necessary
+- 抽出共用邏輯
+- 改善命名
+- 移除重複
+- 必要時優化
 
-Run tests after every refactor step to confirm nothing broke.
+每做一步 refactor 就跑 test，確認沒有東西壞掉。
 
-## The Prove-It Pattern (Bug Fixes)
+## Prove-It Pattern（修 bug）
 
-When a bug is reported, **do not start by trying to fix it.** Start by writing a test that reproduces it.
+收到 bug report 時，**不要直接動手修。** 先寫一個重現它的 test。
 
 ```
 Bug report arrives
@@ -102,7 +102,7 @@ Bug report arrives
   Run full test suite (no regressions)
 ```
 
-**Example:**
+**範例：**
 
 ```typescript
 // Bug: "Completing a task doesn't update the completedAt timestamp"
@@ -127,9 +127,9 @@ export async function completeTask(id: string): Promise<Task> {
 // Step 3: Test passes → bug fixed, regression guarded
 ```
 
-## The Test Pyramid
+## Test Pyramid
 
-Invest testing effort according to the pyramid — most tests should be small and fast, with progressively fewer tests at higher levels:
+依 pyramid 配置 test 投資 —— 大多數 test 應該又小又快，越往高層 test 越少：
 
 ```
           ╱╲
@@ -144,11 +144,11 @@ Invest testing effort according to the pyramid — most tests should be small an
  ╱──────────────────╲
 ```
 
-**The Beyonce Rule:** If you liked it, you should have put a test on it. Infrastructure changes, refactoring, and migrations are not responsible for catching your bugs — your tests are. If a change breaks your code and you didn't have a test for it, that's on you.
+**Beyonce 法則：** If you liked it, you should have put a test on it. 基礎建設變更、refactor、migration 沒有義務替你抓 bug —— 你的 test 才有。如果一個變更弄壞了你的 code 而你沒有 test 守著，那是你的責任。
 
-### Test Sizes (Resource Model)
+### Test Sizes（資源模型）
 
-Beyond the pyramid levels, classify tests by what resources they consume:
+除了 pyramid 層級之外，再依 test 消耗的資源分類：
 
 | Size | Constraints | Speed | Example |
 |------|------------|-------|---------|
@@ -156,9 +156,9 @@ Beyond the pyramid levels, classify tests by what resources they consume:
 | **Medium** | Multi-process OK, localhost only, no external services | Seconds | API tests with test DB, component tests |
 | **Large** | Multi-machine OK, external services allowed | Minutes | E2E tests, performance benchmarks, staging integration |
 
-Small tests should make up the vast majority of your suite. They're fast, reliable, and easy to debug when they fail.
+Small test 應該佔測試套件絕大多數。它們快、穩定，fail 時也容易 debug。
 
-### Decision Guide
+### 決策指南
 
 ```
 Is it pure logic with no side effects?
@@ -171,11 +171,11 @@ Is it a critical user flow that must work end-to-end?
   → E2E test (large) — limit these to critical paths
 ```
 
-## Writing Good Tests
+## 寫好 test
 
-### Test State, Not Interactions
+### Test state，不要 test interaction
 
-Assert on the *outcome* of an operation, not on which methods were called internally. Tests that verify method call sequences break when you refactor, even if the behavior is unchanged.
+斷言操作的*結果*，不要斷言內部呼叫了哪些 method。驗證 method 呼叫順序的 test，在你 refactor 時就會 break，即使行為沒變。
 
 ```typescript
 // Good: Tests what the function does (state-based)
@@ -194,9 +194,9 @@ it('calls db.query with ORDER BY created_at DESC', async () => {
 });
 ```
 
-### DAMP Over DRY in Tests
+### Test 中 DAMP 優於 DRY
 
-In production code, DRY (Don't Repeat Yourself) is usually right. In tests, **DAMP (Descriptive And Meaningful Phrases)** is better. A test should read like a specification — each test should tell a complete story without requiring the reader to trace through shared helpers.
+在 production code 中，DRY（Don't Repeat Yourself）通常是對的。在 test 中則是 **DAMP（Descriptive And Meaningful Phrases）** 比較好。Test 應該讀起來像一份規格 —— 每個 test 應該獨立講完一個故事，不需要讀者去追蹤共用 helper。
 
 ```typescript
 // DAMP: Each test is self-contained and readable
@@ -215,11 +215,11 @@ it('trims whitespace from titles', () => {
 // (Don't do this just to avoid repeating the input shape)
 ```
 
-Duplication in tests is acceptable when it makes each test independently understandable.
+只要能讓每個 test 獨立易懂，test 中的重複是可以接受的。
 
-### Prefer Real Implementations Over Mocks
+### 偏好真實實作而非 mock
 
-Use the simplest test double that gets the job done. The more your tests use real code, the more confidence they provide.
+挑能完成任務的最簡單 test double。Test 用越多真實 code，能給的信心越高。
 
 ```
 Preference order (most to least preferred):
@@ -229,9 +229,9 @@ Preference order (most to least preferred):
 4. Mock (interaction)   → Verifies method calls — use sparingly
 ```
 
-**Use mocks only when:** the real implementation is too slow, non-deterministic, or has side effects you can't control (external APIs, email sending). Over-mocking creates tests that pass while production breaks.
+**只有以下情況才使用 mock：** 真實實作太慢、不確定、或副作用無法控制（外部 API、寄信）。Over-mock 會造成 test 過了但 production 壞掉。
 
-### Use the Arrange-Act-Assert Pattern
+### 使用 Arrange-Act-Assert pattern
 
 ```typescript
 it('marks overdue tasks when deadline has passed', () => {
@@ -249,7 +249,7 @@ it('marks overdue tasks when deadline has passed', () => {
 });
 ```
 
-### One Assertion Per Concept
+### 一個 test 只驗一個概念
 
 ```typescript
 // Good: Each test verifies one behavior
@@ -265,7 +265,7 @@ it('validates titles correctly', () => {
 });
 ```
 
-### Name Tests Descriptively
+### Test 要命名得有描述性
 
 ```typescript
 // Good: Reads like a specification
@@ -284,20 +284,20 @@ describe('TaskService', () => {
 });
 ```
 
-## Test Anti-Patterns to Avoid
+## 要避免的 test 反模式
 
 | Anti-Pattern | Problem | Fix |
 |---|---|---|
-| Testing implementation details | Tests break when refactoring even if behavior is unchanged | Test inputs and outputs, not internal structure |
-| Flaky tests (timing, order-dependent) | Erode trust in the test suite | Use deterministic assertions, isolate test state |
-| Testing framework code | Wastes time testing third-party behavior | Only test YOUR code |
-| Snapshot abuse | Large snapshots nobody reviews, break on any change | Use snapshots sparingly and review every change |
-| No test isolation | Tests pass individually but fail together | Each test sets up and tears down its own state |
-| Mocking everything | Tests pass but production breaks | Prefer real implementations > fakes > stubs > mocks. Mock only at boundaries where real deps are slow or non-deterministic |
+| 測試實作細節 | Refactor 即使行為沒變 test 也 break | Test input 與 output，不 test 內部結構 |
+| Flaky test（時序、依賴順序） | 削弱對測試套件的信任 | 使用確定性斷言、隔離 test state |
+| 測試 framework code | 浪費時間 test 第三方行為 | 只 test 你寫的 code |
+| Snapshot 濫用 | 大段沒人審的 snapshot，任何變更就 break | 節制使用 snapshot，每次變更都審 |
+| 沒有 test 隔離 | 個別跑過、一起跑就 fail | 每個 test 自己 setup/teardown 自己的 state |
+| 什麼都 mock | Test 過但 production 壞 | 偏好順序：real > fake > stub > mock。只在 boundary 處 mock，且只在真實依賴慢或不確定時 |
 
-## When to Use Subagents for Testing
+## 何時用 subagent 跑測試
 
-For complex bug fixes, spawn a subagent to write the reproduction test:
+複雜的 bug 修復可以開 subagent 寫重現 test：
 
 ```
 Main agent: "Spawn a subagent to write a test that reproduces this bug:
@@ -309,44 +309,44 @@ Main agent: Verifies the test fails, then implements the fix,
 then verifies the test passes.
 ```
 
-This separation ensures the test is written without knowledge of the fix, making it more robust.
+這種分工確保 test 是在不知道 fix 內容的情況下寫出來的，可靠度更高。
 
-## See Also
+## 延伸閱讀
 
-For detailed testing patterns, examples, and anti-patterns across frameworks, see `references/testing-patterns.md`.
+跨 framework 的詳細 testing pattern、範例與 anti-pattern 見 `references/testing-patterns.md`。
 
-## Common Rationalizations
+## 常見的合理化說法
 
 | Rationalization | Reality |
 |---|---|
-| "I'll write tests after the code works" | You won't. And tests written after the fact test implementation, not behavior. |
-| "This is too simple to test" | Simple code gets complicated. The test documents the expected behavior. |
-| "Tests slow me down" | Tests slow you down now. They speed you up every time you change the code later. |
-| "I tested it manually" | Manual testing doesn't persist. Tomorrow's change might break it with no way to know. |
-| "The code is self-explanatory" | Tests ARE the specification. They document what the code should do, not what it does. |
-| "It's just a prototype" | Prototypes become production code. Tests from day one prevent the "test debt" crisis. |
-| "Let me run the tests again just to be extra sure" | After a clean test run, repeating the same command adds nothing unless the code has changed since. Run again after subsequent edits, not as reassurance. |
+| 「我寫完 code 再補 test」 | 你不會的。事後補的 test 是測 implementation 不是行為。 |
+| 「這太簡單不用 test」 | 簡單的 code 會變複雜。Test 文件化預期行為。 |
+| 「Test 拖慢我」 | 現在拖慢。但每次後續改 code 都會幫你加速。 |
+| 「我手動測過了」 | 手動測試不會留下來。明天的變更 break 它你也不會知道。 |
+| 「Code 自我說明」 | Test **就是**規格。它記錄 code 應該做什麼，不是它現在做什麼。 |
+| 「只是 prototype」 | Prototype 會變 production code。第一天就有 test 才能避免「test debt」危機。 |
+| 「再跑一次 test 確認一下好了」 | 一次乾淨的 test run 之後，沒改任何 code 就重跑同個指令毫無意義。改完之後再跑，不要拿來自我安慰。 |
 
 ## Red Flags
 
-- Writing code without any corresponding tests
-- Tests that pass on the first run (they may not be testing what you think)
-- "All tests pass" but no tests were actually run
-- Bug fixes without reproduction tests
-- Tests that test framework behavior instead of application behavior
-- Test names that don't describe the expected behavior
-- Skipping tests to make the suite pass
-- Running the same test command twice in a row without any intervening code change
+- 寫 code 但完全沒有對應 test
+- Test 第一次就 pass（它可能根本沒在測你以為的東西）
+- 「全部 test pass」但其實根本沒跑 test
+- 修 bug 沒附重現 test
+- Test 在測 framework 行為而不是 application 行為
+- Test 名稱沒有描述預期行為
+- 跳過 test 來讓套件通過
+- 沒改任何 code 就連續跑同個 test 指令兩次
 
 ## Verification
 
-After completing any implementation:
+完成任何實作後：
 
-- [ ] Every new behavior has a corresponding test
-- [ ] All tests pass: `npm test`
-- [ ] Bug fixes include a reproduction test that failed before the fix
-- [ ] Test names describe the behavior being verified
-- [ ] No tests were skipped or disabled
-- [ ] Coverage hasn't decreased (if tracked)
+- [ ] 每個新行為都有對應 test
+- [ ] 全部 test pass：`npm test`
+- [ ] Bug fix 都附了一個在 fix 之前會 fail 的重現 test
+- [ ] Test 名稱描述了被驗證的行為
+- [ ] 沒有任何 test 被 skip 或 disable
+- [ ] Coverage 沒有下降（如果有追蹤）
 
-**Note:** Run each test command after a change that could affect the result. After a clean run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no confidence.
+**Note：** 每次做了可能影響結果的變更後就跑對應的 test 指令。乾淨跑過之後，code 沒改就不要重跑同個指令 —— 對沒變更的 code 重跑不會增加任何信心。

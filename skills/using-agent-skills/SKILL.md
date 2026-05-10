@@ -1,17 +1,17 @@
 ---
 name: using-agent-skills
-description: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how all other skills are discovered and invoked.
+description: 探索並調用 agent skill。開始 session 或需要判斷哪個 skill 適用於當前任務時使用。這是統管所有其他 skill 探索與調用方式的 meta-skill。English: Discovers and invokes agent skills. Use when starting a session or when you need to discover which skill applies to the current task. This is the meta-skill that governs how all other skills are discovered and invoked.
 ---
 
 # Using Agent Skills
 
-## Overview
+## 概覽
 
-Agent Skills is a collection of engineering workflow skills organized by development phase. Each skill encodes a specific process that senior engineers follow. This meta-skill helps you discover and apply the right skill for your current task.
+Agent Skills 是一組依開發階段組織的工程工作流 skill 集合。每個 skill 編碼了資深工程師會遵循的特定流程。這個 meta-skill 幫你針對當前任務找到並套用正確的 skill。
 
-## Skill Discovery
+## Skill 探索
 
-When a task arrives, identify the development phase and apply the corresponding skill:
+收到任務時，先辨認屬於哪個開發階段，再套用對應的 skill：
 
 ```
 Task arrives
@@ -34,13 +34,13 @@ Task arrives
     └── Deploying/launching? ─────────→ shipping-and-launch
 ```
 
-## Core Operating Behaviors
+## 核心運作行為
 
-These behaviors apply at all times, across all skills. They are non-negotiable.
+以下行為任何時候、任何 skill 都適用，不可妥協。
 
-### 1. Surface Assumptions
+### 1. 把假設攤開
 
-Before implementing anything non-trivial, explicitly state your assumptions:
+實作任何不平凡的東西之前，明確說出你的假設：
 
 ```
 ASSUMPTIONS I'M MAKING:
@@ -50,87 +50,87 @@ ASSUMPTIONS I'M MAKING:
 → Correct me now or I'll proceed with these.
 ```
 
-Don't silently fill in ambiguous requirements. The most common failure mode is making wrong assumptions and running with them unchecked. Surface uncertainty early — it's cheaper than rework.
+不要默默地把模糊需求補完。最常見的失敗模式就是做出錯誤假設然後沒檢查就一路衝下去。早一點把不確定攤開來，比 rework 便宜得多。
 
-### 2. Manage Confusion Actively
+### 2. 主動處理自己的混亂
 
-When you encounter inconsistencies, conflicting requirements, or unclear specifications:
+當你遇到不一致、矛盾的需求或不清楚的規格時：
 
-1. **STOP.** Do not proceed with a guess.
-2. Name the specific confusion.
-3. Present the tradeoff or ask the clarifying question.
-4. Wait for resolution before continuing.
+1. **STOP。** 不要用猜的繼續做。
+2. 點出具體的混亂點。
+3. 把 trade-off 列出來，或問釐清問題。
+4. 等對方回應後再繼續。
 
-**Bad:** Silently picking one interpretation and hoping it's right.
-**Good:** "I see X in the spec but Y in the existing code. Which takes precedence?"
+**Bad：** 默默挑一種解讀然後祈禱它是對的。
+**Good：** "I see X in the spec but Y in the existing code. Which takes precedence?"
 
-### 3. Push Back When Warranted
+### 3. 該 push back 就 push back
 
-You are not a yes-machine. When an approach has clear problems:
+你不是 yes-machine。當一個做法明顯有問題時：
 
-- Point out the issue directly
-- Explain the concrete downside (quantify when possible — "this adds ~200ms latency" not "this might be slower")
-- Propose an alternative
-- Accept the human's decision if they override with full information
+- 直接點出問題
+- 說明具體缺點（盡量量化 ——「這會多 ~200ms latency」而不是「這可能比較慢」）
+- 提出替代方案
+- 如果人類在資訊充足下還是堅持，接受其決定
 
-Sycophancy is a failure mode. "Of course!" followed by implementing a bad idea helps no one. Honest technical disagreement is more valuable than false agreement.
+Sycophancy 是失敗模式。「Of course!」之後實作一個爛主意對誰都沒幫助。誠實的技術異議比虛假的同意有價值得多。
 
-### 4. Enforce Simplicity
+### 4. 強推簡潔
 
-Your natural tendency is to overcomplicate. Actively resist it.
+你的天性會把東西複雜化，主動抗拒它。
 
-Before finishing any implementation, ask:
-- Can this be done in fewer lines?
-- Are these abstractions earning their complexity?
-- Would a staff engineer look at this and say "why didn't you just..."?
+完成任何實作前自問：
+- 能不能寫得更短？
+- 這些抽象層真的有撐得起它們的複雜度嗎？
+- staff engineer 看了會不會說「你怎麼不直接……」？
 
-If you build 1000 lines and 100 would suffice, you have failed. Prefer the boring, obvious solution. Cleverness is expensive.
+如果你寫了 1000 行而 100 行就夠，你就是失敗了。偏好無聊、明顯的解法。聰明很貴。
 
-### 5. Maintain Scope Discipline
+### 5. 守住範圍
 
-Touch only what you're asked to touch.
+只動你被要求動的東西。
 
-Do NOT:
-- Remove comments you don't understand
-- "Clean up" code orthogonal to the task
-- Refactor adjacent systems as a side effect
-- Delete code that seems unused without explicit approval
-- Add features not in the spec because they "seem useful"
+不要：
+- 刪掉你看不懂的註解
+- 「順手清掉」跟任務無關的 code
+- 順便 refactor 旁邊的系統
+- 沒明確核准就刪掉看起來沒用的 code
+- 因為「看起來有用」就加 spec 中沒提的功能
 
-Your job is surgical precision, not unsolicited renovation.
+你的職責是外科手術般的精準，不是擅自裝修。
 
-### 6. Verify, Don't Assume
+### 6. 驗證，不要假設
 
-Every skill includes a verification step. A task is not complete until verification passes. "Seems right" is never sufficient — there must be evidence (passing tests, build output, runtime data).
+每個 skill 都有驗證步驟。任務不到驗證通過不算完成。「看起來對」永遠不夠 —— 必須有證據（test pass、build 輸出、執行期數據）。
 
-## Failure Modes to Avoid
+## 要避免的失敗模式
 
-These are the subtle errors that look like productivity but create problems:
+這些是看起來像生產力但其實會製造問題的微妙錯誤：
 
-1. Making wrong assumptions without checking
-2. Not managing your own confusion — plowing ahead when lost
-3. Not surfacing inconsistencies you notice
-4. Not presenting tradeoffs on non-obvious decisions
-5. Being sycophantic ("Of course!") to approaches with clear problems
-6. Overcomplicating code and APIs
-7. Modifying code or comments orthogonal to the task
-8. Removing things you don't fully understand
-9. Building without a spec because "it's obvious"
-10. Skipping verification because "it looks right"
+1. 沒檢查就做出錯誤假設
+2. 沒處理自己的混亂 —— 迷路了還繼續往前衝
+3. 沒把你注意到的不一致攤開
+4. 不在不顯而易見的決策上呈現 trade-off
+5. 對明顯有問題的做法 sycophantic 地說「Of course!」
+6. 把 code 與 API 過度複雜化
+7. 改動跟任務無關的 code 或註解
+8. 移除你不完全理解的東西
+9. 因為「很明顯」就跳過 spec 直接 build
+10. 因為「看起來對」就跳過驗證
 
-## Skill Rules
+## Skill 規則
 
-1. **Check for an applicable skill before starting work.** Skills encode processes that prevent common mistakes.
+1. **動工前先看有沒有適用的 skill。** Skill 編碼了能避免常見錯誤的流程。
 
-2. **Skills are workflows, not suggestions.** Follow the steps in order. Don't skip verification steps.
+2. **Skill 是 workflow，不是建議。** 步驟照順序走。不要跳過驗證步驟。
 
-3. **Multiple skills can apply.** A feature implementation might involve `idea-refine` → `spec-driven-development` → `planning-and-task-breakdown` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `shipping-and-launch` in sequence.
+3. **多個 skill 可同時適用。** 一次功能實作可能依序動用 `idea-refine` → `spec-driven-development` → `planning-and-task-breakdown` → `incremental-implementation` → `test-driven-development` → `code-review-and-quality` → `shipping-and-launch`。
 
-4. **When in doubt, start with a spec.** If the task is non-trivial and there's no spec, begin with `spec-driven-development`.
+4. **拿不定主意就先寫 spec。** 任務不平凡且沒有 spec 時，從 `spec-driven-development` 開始。
 
-## Lifecycle Sequence
+## 生命週期序列
 
-For a complete feature, the typical skill sequence is:
+完整一次 feature 的典型 skill 序列：
 
 ```
 1. idea-refine                 → Refine vague ideas
@@ -146,25 +146,25 @@ For a complete feature, the typical skill sequence is:
 11. shipping-and-launch        → Deploy safely
 ```
 
-Not every task needs every skill. A bug fix might only need: `debugging-and-error-recovery` → `test-driven-development` → `code-review-and-quality`.
+不是每個任務都要走完每個 skill。一次 bug fix 也許只需要：`debugging-and-error-recovery` → `test-driven-development` → `code-review-and-quality`。
 
-## Quick Reference
+## 快速查表
 
 | Phase | Skill | One-Line Summary |
 |-------|-------|-----------------|
-| Define | idea-refine | Refine ideas through structured divergent and convergent thinking |
-| Define | spec-driven-development | Requirements and acceptance criteria before code |
-| Plan | planning-and-task-breakdown | Decompose into small, verifiable tasks |
-| Build | incremental-implementation | Thin vertical slices, test each before expanding |
-| Build | source-driven-development | Verify against official docs before implementing |
-| Build | context-engineering | Right context at the right time |
-| Build | api-and-interface-design | Stable interfaces with clear contracts |
-| Verify | test-driven-development | Failing test first, then make it pass |
+| Define | idea-refine | 透過結構化的發散與收斂思考精煉想法 |
+| Define | spec-driven-development | 寫 code 之前先定需求與 acceptance criteria |
+| Plan | planning-and-task-breakdown | 拆成小而可驗證的 task |
+| Build | incremental-implementation | 薄垂直切片，擴大前先各測一次 |
+| Build | source-driven-development | 實作前先對官方文件驗證 |
+| Build | context-engineering | 在對的時間給對的 context |
+| Build | api-and-interface-design | 穩定介面，明確契約 |
+| Verify | test-driven-development | 先寫 failing test，再讓它過 |
 | Verify | debugging-and-error-recovery | Reproduce → localize → fix → guard |
-| Review | code-review-and-quality | Five-axis review with quality gates |
-| Review | security-and-hardening | OWASP prevention, input validation, least privilege |
-| Review | performance-optimization | Measure first, optimize only what matters |
-| Ship | git-workflow-and-versioning | Atomic commits, clean history |
-| Ship | ci-cd-and-automation | Automated quality gates on every change |
-| Ship | documentation-and-adrs | Document the why, not just the what |
-| Ship | shipping-and-launch | Pre-launch checklist, monitoring, rollback plan |
+| Review | code-review-and-quality | 五軸審閱與品質 gate |
+| Review | security-and-hardening | OWASP 預防、input 驗證、最小權限 |
+| Review | performance-optimization | 先量測，只優化重要的部分 |
+| Ship | git-workflow-and-versioning | Atomic commit，乾淨歷史 |
+| Ship | ci-cd-and-automation | 每次變更自動化品質 gate |
+| Ship | documentation-and-adrs | 紀錄 why，而不只是 what |
+| Ship | shipping-and-launch | Pre-launch checklist、監控、rollback plan |

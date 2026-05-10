@@ -1,29 +1,29 @@
 ---
 name: ci-cd-and-automation
-description: Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.
+description: 自動化 CI/CD pipeline 設置。用於建立或修改 build 與 deployment pipeline 時。用於需要自動化品質門檻、在 CI 設定 test runner，或建立 deployment 策略時。English: Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.
 ---
 
 # CI/CD and Automation
 
 ## Overview
 
-Automate quality gates so that no change reaches production without passing tests, lint, type checking, and build. CI/CD is the enforcement mechanism for every other skill — it catches what humans and agents miss, and it does so consistently on every single change.
+把品質門檻自動化，讓每個變更都必須通過測試、lint、type check 與 build 才能進到 production。CI/CD 是其他所有 skill 的執行機制——它能補捉人類與 agent 漏掉的東西，而且在每一次變更上都一致地做這件事。
 
-**Shift Left:** Catch problems as early in the pipeline as possible. A bug caught in linting costs minutes; the same bug caught in production costs hours. Move checks upstream — static analysis before tests, tests before staging, staging before production.
+**Shift Left：** 盡早在 pipeline 中抓出問題。在 lint 階段抓到的 bug 只花幾分鐘；同樣的 bug 在 production 抓到要花好幾小時。把檢查往上游推——靜態分析在測試之前、測試在 staging 之前、staging 在 production 之前。
 
-**Faster is Safer:** Smaller batches and more frequent releases reduce risk, not increase it. A deployment with 3 changes is easier to debug than one with 30. Frequent releases build confidence in the release process itself.
+**越快越安全：** 較小的批次與更頻繁的 release 會降低風險而非升高。一次 deploy 含 3 個變更比一次含 30 個更容易 debug。頻繁 release 能對 release 流程本身建立信心。
 
 ## When to Use
 
-- Setting up a new project's CI pipeline
-- Adding or modifying automated checks
-- Configuring deployment pipelines
-- When a change should trigger automated verification
-- Debugging CI failures
+- 為新專案建立 CI pipeline
+- 新增或修改自動化檢查
+- 設定 deployment pipeline
+- 當變更應該觸發自動驗證時
+- Debug CI 失敗
 
 ## The Quality Gate Pipeline
 
-Every change goes through these gates before merge:
+每個變更在 merge 之前都會經過這些 gate：
 
 ```
 Pull Request Opened
@@ -51,7 +51,7 @@ Pull Request Opened
   Ready for review
 ```
 
-**No gate can be skipped.** If lint fails, fix lint — don't disable the rule. If a test fails, fix the code — don't skip the test.
+**沒有任何 gate 可以略過。** Lint 失敗就修 lint——不要關掉那條規則。Test 失敗就修程式碼——不要 skip 那個 test。
 
 ## GitHub Actions Configuration
 
@@ -134,7 +134,7 @@ jobs:
           DATABASE_URL: postgresql://ci_user:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/testdb
 ```
 
-> **Note:** Even for CI-only test databases, use GitHub Secrets for credentials rather than hardcoding values. This builds good habits and prevents accidental reuse of test credentials in other contexts.
+> **注意：** 即使是 CI 專用的 test database，也要用 GitHub Secrets 來存放憑證，而不是寫死在程式碼裡。這能養成好習慣，並避免不小心在其他情境重用測試憑證。
 
 ### E2E Tests
 
@@ -163,7 +163,7 @@ jobs:
 
 ## Feeding CI Failures Back to Agents
 
-The power of CI with AI agents is the feedback loop. When CI fails:
+CI 搭配 AI agent 的威力在於 feedback loop。當 CI 失敗時：
 
 ```
 CI fails
@@ -181,7 +181,7 @@ Fix the issue and verify locally before pushing again."
 Agent fixes → pushes → CI runs again
 ```
 
-**Key patterns:**
+**主要 pattern：**
 
 ```
 Lint failure → Agent runs `npm run lint --fix` and commits
@@ -194,7 +194,7 @@ Build error → Agent checks config and dependencies
 
 ### Preview Deployments
 
-Every PR gets a preview deployment for manual testing:
+每個 PR 都產生一份 preview deployment 供手動測試：
 
 ```yaml
 # Deploy preview on PR (Vercel/Netlify/etc.)
@@ -209,12 +209,12 @@ deploy-preview:
 
 ### Feature Flags
 
-Feature flags decouple deployment from release. Deploy incomplete or risky features behind flags so you can:
+Feature flag 把 deploy 與 release 解耦。將未完成或有風險的功能藏在 flag 後面 deploy，這樣你可以：
 
-- **Ship code without enabling it.** Merge to main early, enable when ready.
-- **Roll back without redeploying.** Disable the flag instead of reverting code.
-- **Canary new features.** Enable for 1% of users, then 10%, then 100%.
-- **Run A/B tests.** Compare behavior with and without the feature.
+- **Ship 程式碼但不啟用它。** 早早 merge 到 main，準備好再啟用。
+- **不需要重新 deploy 就能 rollback。** 關掉 flag 就好，不用 revert 程式碼。
+- **對新功能做 canary。** 先開放給 1% 使用者、然後 10%、再 100%。
+- **執行 A/B test。** 比較有無此功能的行為差異。
 
 ```typescript
 // Simple feature flag pattern
@@ -224,7 +224,7 @@ if (featureFlags.isEnabled('new-checkout-flow', { userId })) {
 return renderLegacyCheckout();
 ```
 
-**Flag lifecycle:** Create → Enable for testing → Canary → Full rollout → Remove the flag and dead code. Flags that live forever become technical debt — set a cleanup date when you create them.
+**Flag 的生命週期：** 建立 → 開給內部測試 → canary → 全面 rollout → 移除 flag 與已死的程式碼。永遠不死的 flag 會變成技術債——建立的同時就設一個清理日期。
 
 ### Staged Rollouts
 
@@ -246,7 +246,7 @@ PR merged to main
 
 ### Rollback Plan
 
-Every deployment should be reversible:
+每次 deployment 都應該可回退：
 
 ```yaml
 # Manual rollback workflow
@@ -278,7 +278,7 @@ CI secrets          → Stored in GitHub Secrets / vault
 Production secrets  → Stored in deployment platform / vault
 ```
 
-CI should never have production secrets. Use separate secrets for CI testing.
+CI 絕不應該擁有 production 的 secret。CI 測試請使用獨立的 secret。
 
 ## Automation Beyond CI
 
@@ -297,18 +297,18 @@ updates:
 
 ### Build Cop Role
 
-Designate someone responsible for keeping CI green. When the build breaks, the Build Cop's job is to fix or revert — not the person whose change caused the break. This prevents broken builds from accumulating while everyone assumes someone else will fix it.
+指定一個人負責讓 CI 保持綠燈。當 build 壞掉時，Build Cop 的工作是修好或 revert——不是讓造成壞掉的那個人負責。這能防止壞掉的 build 累積，因為大家都以為「會有別人去修」。
 
 ### PR Checks
 
-- **Required reviews:** At least 1 approval before merge
-- **Required status checks:** CI must pass before merge
-- **Branch protection:** No force-pushes to main
-- **Auto-merge:** If all checks pass and approved, merge automatically
+- **Required reviews：** Merge 前至少一個人 approve
+- **Required status checks：** Merge 前 CI 必須通過
+- **Branch protection：** 不允許 force-push 到 main
+- **Auto-merge：** 通過所有檢查並 approve 後自動 merge
 
 ## CI Optimization
 
-When the pipeline exceeds 10 minutes, apply these strategies in order of impact:
+當 pipeline 超過 10 分鐘時，依影響大小依序套用以下策略：
 
 ```
 Slow CI pipeline?
@@ -326,7 +326,7 @@ Slow CI pipeline?
     └── GitHub-hosted larger runners or self-hosted for CPU-heavy builds
 ```
 
-**Example: caching and parallelism**
+**範例：caching 與 parallelism**
 ```yaml
 jobs:
   lint:
@@ -361,30 +361,30 @@ jobs:
 
 | Rationalization | Reality |
 |---|---|
-| "CI is too slow" | Optimize the pipeline (see CI Optimization below), don't skip it. A 5-minute pipeline prevents hours of debugging. |
-| "This change is trivial, skip CI" | Trivial changes break builds. CI is fast for trivial changes anyway. |
-| "The test is flaky, just re-run" | Flaky tests mask real bugs and waste everyone's time. Fix the flakiness. |
-| "We'll add CI later" | Projects without CI accumulate broken states. Set it up on day one. |
-| "Manual testing is enough" | Manual testing doesn't scale and isn't repeatable. Automate what you can. |
+| 「CI 太慢了」 | 把 pipeline 優化（見下方 CI Optimization），不要 skip。5 分鐘的 pipeline 能省掉好幾小時的 debug。 |
+| 「這個變更很小，跳過 CI 吧」 | 小變更也會弄壞 build。而且小變更跑 CI 本來就快。 |
+| 「這個 test 不穩，重跑就好」 | Flaky test 會掩蓋真正的 bug 並浪費所有人時間。修好它的不穩定。 |
+| 「我們之後再加 CI」 | 沒有 CI 的專案會累積壞掉的狀態。第一天就建好。 |
+| 「手動測試就夠了」 | 手動測試無法擴展也不可重複。能自動化的就自動化。 |
 
 ## Red Flags
 
-- No CI pipeline in the project
-- CI failures ignored or silenced
-- Tests disabled in CI to make the pipeline pass
-- Production deploys without staging verification
-- No rollback mechanism
-- Secrets stored in code or CI config files (not secrets manager)
-- Long CI times with no optimization effort
+- 專案沒有 CI pipeline
+- CI 失敗被忽略或被靜音
+- 為了讓 pipeline 過而把測試 disable
+- 沒經過 staging 驗證就直接 deploy 到 production
+- 沒有 rollback 機制
+- Secret 存在程式碼或 CI 設定檔（而非 secrets manager）
+- CI 跑很久卻沒人去優化
 
 ## Verification
 
-After setting up or modifying CI:
+建立或修改 CI 之後：
 
-- [ ] All quality gates are present (lint, types, tests, build, audit)
-- [ ] Pipeline runs on every PR and push to main
-- [ ] Failures block merge (branch protection configured)
-- [ ] CI results feed back into the development loop
-- [ ] Secrets are stored in the secrets manager, not in code
-- [ ] Deployment has a rollback mechanism
-- [ ] Pipeline runs in under 10 minutes for the test suite
+- [ ] 所有品質門檻都到位（lint、type、test、build、audit）
+- [ ] Pipeline 在每個 PR 與每次推到 main 時執行
+- [ ] 失敗會 block merge（branch protection 已設定）
+- [ ] CI 結果會回饋進開發迴圈
+- [ ] Secret 存在 secrets manager 而非程式碼裡
+- [ ] Deployment 有 rollback 機制
+- [ ] 測試套件的 pipeline 在 10 分鐘內跑完

@@ -1,22 +1,22 @@
 ---
-description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
+description: 簡化 code 以提升清晰度與可維護性 — 在不改變行為的前提下降低複雜度。English: Simplify code for clarity and maintainability — reduce complexity without changing behavior
 ---
 
-Invoke the agent-skills:code-simplification skill.
+呼叫 agent-skills:code-simplification skill。
 
-Simplify recently changed code (or the specified scope) while preserving exact behavior:
+在保留完全相同行為的前提下，簡化最近變更的 code（或指定範圍）：
 
-1. Read CLAUDE.md and study project conventions
-2. Identify the target code — recent changes unless a broader scope is specified
-3. Understand the code's purpose, callers, edge cases, and test coverage before touching it
-4. Scan for simplification opportunities:
-   - Deep nesting → guard clauses or extracted helpers
-   - Long functions → split by responsibility
-   - Nested ternaries → if/else or switch
-   - Generic names → descriptive names
-   - Duplicated logic → shared functions
-   - Dead code → remove after confirming
-5. Apply each simplification incrementally — run tests after each change
-6. Verify all tests pass, the build succeeds, and the diff is clean
+1. 讀 CLAUDE.md 並研究專案慣例
+2. 鎖定目標 code — 預設是最近的變更，除非另有指定更廣的範圍
+3. 在動手前先理解 code 的目的、呼叫者、edge cases、以及 test 覆蓋情況
+4. 掃描可簡化的機會：
+   - 深層 nesting → guard clauses 或抽出 helper
+   - 過長 function → 依 responsibility 拆分
+   - 巢狀 ternary → 改用 if/else 或 switch
+   - 過於 generic 的命名 → 改用具描述性的名稱
+   - 重複邏輯 → 抽成共用 function
+   - Dead code → 確認後移除
+5. incremental 套用每個簡化 — 每次變更後跑 test
+6. 確認所有 test 通過、build 成功、diff 乾淨
 
-If tests fail after a simplification, revert that change and reconsider. Use `code-review-and-quality` to review the result.
+如果簡化後 test 失敗，revert 該變更並重新評估。用 `code-review-and-quality` review 結果。

@@ -1,17 +1,17 @@
 ---
-description: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
+description: 跑 TDD workflow — 寫 failing test、實作、驗證。對 bug 採用 Prove-It pattern。English: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
 ---
 
-Invoke the agent-skills:test-driven-development skill.
+呼叫 agent-skills:test-driven-development skill。
 
-For new features:
-1. Write tests that describe the expected behavior (they should FAIL)
-2. Implement the code to make them pass
-3. Refactor while keeping tests green
+新功能：
+1. 寫描述預期行為的 test（它們應該 FAIL）
+2. 實作 code 讓它們通過
+3. 在保持 test 綠燈的前提下 refactor
 
-For bug fixes (Prove-It pattern):
-1. Write a test that reproduces the bug (must FAIL)
-2. Confirm the test fails
-3. Implement the fix
-4. Confirm the test passes
-5. Run the full test suite for regressions
+Bug 修正（Prove-It pattern）：
+1. 寫一個能重現 bug 的 test（必須 FAIL）
+2. 確認該 test 失敗
+3. 實作修正
+4. 確認該 test 通過
+5. 跑完整 test suite 檢查 regression

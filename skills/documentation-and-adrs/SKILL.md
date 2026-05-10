@@ -1,41 +1,41 @@
 ---
 name: documentation-and-adrs
-description: Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
+description: 記錄決策與文件。在做架構決策、變更 public API、出貨功能、或需要為未來工程師與 agent 留下理解 codebase 必要 context 時使用。English: Records decisions and documentation. Use when making architectural decisions, changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
 ---
 
 # Documentation and ADRs
 
-## Overview
+## 概覽
 
-Document decisions, not just code. The most valuable documentation captures the *why* — the context, constraints, and trade-offs that led to a decision. Code shows *what* was built; documentation explains *why it was built this way* and *what alternatives were considered*. This context is essential for future humans and agents working in the codebase.
+要記錄的是決策，不只是 code。最有價值的文件捕捉的是 *為什麼* —— 導向某個決策的 context、限制、與權衡。Code 顯示 *做了什麼*；文件解釋 *為什麼這樣做* 與 *考慮過哪些 alternatives*。這個 context 對未來在 codebase 工作的人類與 agent 都至關重要。
 
-## When to Use
+## 何時使用
 
-- Making a significant architectural decision
-- Choosing between competing approaches
-- Adding or changing a public API
-- Shipping a feature that changes user-facing behavior
-- Onboarding new team members (or agents) to the project
-- When you find yourself explaining the same thing repeatedly
+- 做重大架構決策時
+- 在多個競爭方案中選擇時
+- 新增或修改 public API 時
+- 出貨會改變使用者面行為的功能時
+- 讓新成員（或 agent）熟悉專案時
+- 當你發現自己在重複解釋同一件事時
 
-**When NOT to use:** Don't document obvious code. Don't add comments that restate what the code already says. Don't write docs for throwaway prototypes.
+**何時不該用：**不要為顯而易見的 code 寫文件。不要寫只是把 code 重講一次的 comment。不要為一次性的原型寫文件。
 
 ## Architecture Decision Records (ADRs)
 
-ADRs capture the reasoning behind significant technical decisions. They're the highest-value documentation you can write.
+ADR 捕捉重大技術決策背後的推理過程。它是你能寫的文件中最高價值的一種。
 
-### When to Write an ADR
+### 何時寫 ADR
 
-- Choosing a framework, library, or major dependency
-- Designing a data model or database schema
-- Selecting an authentication strategy
-- Deciding on an API architecture (REST vs. GraphQL vs. tRPC)
-- Choosing between build tools, hosting platforms, or infrastructure
-- Any decision that would be expensive to reverse
+- 選 framework、library、或主要 dependency 時
+- 設計 data model 或 database schema 時
+- 選 authentication 策略時
+- 決定 API 架構（REST vs. GraphQL vs. tRPC）時
+- 在 build tool、hosting platform、或 infrastructure 之間選擇時
+- 任何難以反轉的決策
 
 ### ADR Template
 
-Store ADRs in `docs/decisions/` with sequential numbering:
+ADR 放在 `docs/decisions/`，依序編號：
 
 ```markdown
 # ADR-001: Use PostgreSQL for primary database
@@ -80,20 +80,20 @@ Use PostgreSQL with Prisma ORM.
 - Hosting on managed service (Supabase, Neon, or RDS)
 ```
 
-### ADR Lifecycle
+### ADR 生命週期
 
 ```
 PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
 ```
 
-- **Don't delete old ADRs.** They capture historical context.
-- When a decision changes, write a new ADR that references and supersedes the old one.
+- **不要刪舊 ADR。** 它們捕捉了歷史 context。
+- 當決策改變時，寫一份新 ADR 引用並 supersede 舊的。
 
-## Inline Documentation
+## Inline 文件
 
-### When to Comment
+### 何時要寫 comment
 
-Comment the *why*, not the *what*:
+寫 *why*，不要寫 *what*：
 
 ```typescript
 // BAD: Restates the code
@@ -109,7 +109,7 @@ if (now - windowStart > WINDOW_SIZE_MS) {
 }
 ```
 
-### When NOT to Comment
+### 何時不要寫 comment
 
 ```typescript
 // Don't comment self-explanatory code
@@ -124,7 +124,7 @@ function calculateTotal(items: CartItem[]): number {
 // const oldImplementation = () => { ... }  ← Delete it, git has history
 ```
 
-### Document Known Gotchas
+### 文件化已知雷區
 
 ```typescript
 /**
@@ -139,11 +139,11 @@ export function initializeTheme(theme: Theme): void {
 }
 ```
 
-## API Documentation
+## API 文件
 
-For public APIs (REST, GraphQL, library interfaces):
+對 public API（REST、GraphQL、library interface）：
 
-### Inline with Types (Preferred for TypeScript)
+### 與 type 共置（TypeScript 推薦）
 
 ```typescript
 /**
@@ -163,7 +163,7 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
 }
 ```
 
-### OpenAPI / Swagger for REST APIs
+### REST API 用 OpenAPI / Swagger
 
 ```yaml
 paths:
@@ -187,9 +187,9 @@ paths:
           description: Validation error
 ```
 
-## README Structure
+## README 結構
 
-Every project should have a README that covers:
+每個專案都該有一份 README，涵蓋：
 
 ```markdown
 # Project Name
@@ -218,9 +218,9 @@ Link to ADRs for details.
 How to contribute, coding standards, PR process.
 ```
 
-## Changelog Maintenance
+## Changelog 維護
 
-For shipped features:
+對出貨功能：
 
 ```markdown
 # Changelog
@@ -237,42 +237,42 @@ For shipped features:
 - Task list now loads 50 items per page (was 20) for better UX (#126)
 ```
 
-## Documentation for Agents
+## 給 Agent 看的文件
 
-Special consideration for AI agent context:
+針對 AI agent context 的特別考量：
 
-- **CLAUDE.md / rules files** — Document project conventions so agents follow them
-- **Spec files** — Keep specs updated so agents build the right thing
-- **ADRs** — Help agents understand why past decisions were made (prevents re-deciding)
-- **Inline gotchas** — Prevent agents from falling into known traps
+- **CLAUDE.md / rules 檔** —— 寫下專案慣例，讓 agent 跟著走
+- **Spec 檔** —— 維持 spec 最新，讓 agent 做對的事
+- **ADR** —— 幫 agent 理解過去決策的原因（避免重新決策）
+- **Inline 雷區** —— 防止 agent 踩入已知陷阱
 
-## Common Rationalizations
+## 常見合理化（Rationalizations）
 
-| Rationalization | Reality |
+| 合理化說法 | 實際情況 |
 |---|---|
-| "The code is self-documenting" | Code shows what. It doesn't show why, what alternatives were rejected, or what constraints apply. |
-| "We'll write docs when the API stabilizes" | APIs stabilize faster when you document them. The doc is the first test of the design. |
-| "Nobody reads docs" | Agents do. Future engineers do. Your 3-months-later self does. |
-| "ADRs are overhead" | A 10-minute ADR prevents a 2-hour debate about the same decision six months later. |
-| "Comments get outdated" | Comments on *why* are stable. Comments on *what* get outdated — that's why you only write the former. |
+| 「Code 就是文件」 | Code 顯示 what，不會顯示 why、考慮過什麼 alternative、有什麼限制。 |
+| 「等 API 穩定了再寫文件」 | 寫了文件 API 才會更快穩定。文件是設計的第一個 test。 |
+| 「沒人會看文件」 | Agent 會看，未來工程師會看，3 個月後的你也會看。 |
+| 「ADR 是多餘負擔」 | 10 分鐘的 ADR 可以省下 6 個月後 2 小時的同題重辯。 |
+| 「Comment 會過時」 | 寫 *why* 的 comment 是穩定的。會過時的是寫 *what* 的 comment —— 所以才只寫 why。 |
 
 ## Red Flags
 
-- Architectural decisions with no written rationale
-- Public APIs with no documentation or types
-- README that doesn't explain how to run the project
-- Commented-out code instead of deletion
-- TODO comments that have been there for weeks
-- No ADRs in a project with significant architectural choices
-- Documentation that restates the code instead of explaining intent
+- 架構決策沒有書面理由
+- public API 沒有文件或 type
+- README 沒寫怎麼跑專案
+- 用 commented-out code 取代刪除
+- TODO comment 放了好幾週
+- 有重大架構選擇的專案卻沒有 ADR
+- 文件只是把 code 重述一次，而不是解釋意圖
 
-## Verification
+## 驗證
 
-After documenting:
+文件化後：
 
-- [ ] ADRs exist for all significant architectural decisions
-- [ ] README covers quick start, commands, and architecture overview
-- [ ] API functions have parameter and return type documentation
-- [ ] Known gotchas are documented inline where they matter
-- [ ] No commented-out code remains
-- [ ] Rules files (CLAUDE.md etc.) are current and accurate
+- [ ] 所有重大架構決策都有 ADR
+- [ ] README 涵蓋 quick start、commands、與架構概觀
+- [ ] API 函式有 parameter 與 return type 文件
+- [ ] 重要的雷區在 inline 文件化在它出現的位置
+- [ ] 沒有殘留的 commented-out code
+- [ ] Rules 檔（CLAUDE.md 等）保持最新且準確

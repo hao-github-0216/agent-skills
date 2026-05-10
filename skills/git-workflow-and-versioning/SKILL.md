@@ -1,23 +1,23 @@
 ---
 name: git-workflow-and-versioning
-description: Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams.
+description: 建立 git workflow 規範。任何程式碼變更都適用。當需要 commit、開 branch、解 conflict，或需要組織多條平行工作流時使用。English: Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, or when you need to organize work across multiple parallel streams.
 ---
 
 # Git Workflow and Versioning
 
 ## Overview
 
-Git is your safety net. Treat commits as save points, branches as sandboxes, and history as documentation. With AI agents generating code at high speed, disciplined version control is the mechanism that keeps changes manageable, reviewable, and reversible.
+Git 是你的安全網。把 commit 當作存檔點、branch 當作沙盒、history 當作文件。當 AI agent 以高速產出程式碼時，有紀律的版本控制就是讓變更維持可控、可審查、可回復的核心機制。
 
-In this fork's domain, git plays an additional role beyond version control: **it is the data transport between machines.**
+在這個 fork 的領域裡，git 還扮演著版本控制以外的角色：**它是機器之間的資料傳輸通道。**
 
 ## When to Use
 
-Always. Every code change flows through git. Every cross-device data transfer in this setup ALSO flows through git — never `scp` / `rsync` for results.
+永遠都要用。每一次程式碼變更都會經過 git。這個環境下所有跨裝置的資料傳輸也都會經過 git — 結果絕對不要用 `scp` / `rsync`。
 
 ## Git as data transport — the Bridge2HPC pattern
 
-This fork's owner runs experiments on OSU HPC and views results on howardserver. The wire between them is GitHub:
+這個 fork 的擁有者在 OSU HPC 上跑實驗，並在 howardserver 上看結果。兩者之間的傳輸通道就是 GitHub：
 
 ```
 howardserver edit
@@ -34,23 +34,23 @@ howardserver edit
                                             ~/<repo>/local_artifacts/<tag>/
 ```
 
-**Implications for commit hygiene in this setup:**
+**這對 commit 衛生的影響：**
 
-- Commit messages on the HPC side are how you find out what a run did weeks later. Include: run tag, partition, exit code, key metric (e.g. `[run/poison-eps8] dgxh, exit 0, ASR=0.34`).
-- The `results/` or `local_artifacts/` directory is intentionally git-tracked even though it's "outputs" — that's how transport works here. `.gitignore` should NOT block these paths in this user's repos.
-- Force-pushing main on a research repo can wipe in-flight result commits from HPC jobs. **Never `git push --force` on a repo that has live SLURM jobs writing to it.**
-- If `poll.sh` reports "no new commits" but a job is supposedly done, check the HPC clone: `ssh -J flip submit "cd <repo> && git log --oneline -5"`. The job may have crashed before its commit, or the push may have failed silently.
+- HPC 端的 commit message 是你幾週後回頭追溯這次 run 做了什麼的依據。請包含：run tag、partition、exit code、關鍵指標（例如 `[run/poison-eps8] dgxh, exit 0, ASR=0.34`）。
+- `results/` 或 `local_artifacts/` 目錄雖然是「輸出」，但故意被 git 追蹤 — 這就是這裡資料傳輸的方式。本使用者的 repo 中 `.gitignore` 不應該擋掉這些路徑。
+- 在研究 repo 上對 main force-push 會抹掉 HPC job 進行中產出的 commit。**只要還有 SLURM job 正在寫入這個 repo，就絕對不要 `git push --force`。**
+- 如果 `poll.sh` 回報「沒有新 commit」但 job 應該已經跑完，去檢查 HPC 上的 clone：`ssh -J flip submit "cd <repo> && git log --oneline -5"`。可能是 job 在 commit 之前就 crash，或 push 默默失敗。
 
 ## Repo policy specific to this fork
 
-- **No `.md` decision logs / experiment notes inside the repo.** Vault at `~/vault/<Project>/` is the journal. The repo is for code only. If you find yourself wanting to commit `EXPERIMENTS.md` or `NOTES.md`, redirect to a vault cell instead.
-- **Never use long-lived per-machine branches** for personal customization. One `main`, shared across howardserver / HPC / Mac. (Per-machine differences live OUTSIDE the repo: in `~/.claude/skills/` or dotfiles.) The `agent-skills-fork-dev` user-scope skill encodes this rule.
+- **repo 內不放 `.md` 決策日誌 / 實驗筆記。** 位於 `~/vault/<Project>/` 的 vault 才是日誌所在。Repo 只給程式碼用。如果你發現自己想 commit `EXPERIMENTS.md` 或 `NOTES.md`，請改成寫進 vault cell。
+- **絕對不要為了個人客製而開長期存活的 per-machine branch。** 一條 `main`，由 howardserver / HPC / Mac 共用。（per-machine 差異住在 repo 之外：`~/.claude/skills/` 或 dotfiles。）`agent-skills-fork-dev` 這個 user-scope skill 把這條規則編碼了。
 
 ## Core Principles
 
 ### Trunk-Based Development (Recommended)
 
-Keep `main` always deployable. Work in short-lived feature branches that merge back within 1-3 days. Long-lived development branches are hidden costs — they diverge, create merge conflicts, and delay integration. DORA research consistently shows trunk-based development correlates with high-performing engineering teams.
+讓 `main` 隨時都能部署。在短期存活的 feature branch 上工作，並在 1-3 天內 merge 回來。長期存活的 development branch 是隱藏成本 — 它們會發散、製造 merge conflict、延遲整合。DORA 的研究一再顯示 trunk-based development 與高績效工程團隊有正相關。
 
 ```
 main ──●──●──●──●──●──●──●──●──●──  (always deployable)
@@ -58,15 +58,15 @@ main ──●──●──●──●──●──●──●──●─
          ●──●─╱    ●──╱    ← short-lived feature branches (1-3 days)
 ```
 
-This is the recommended default. Teams using gitflow or long-lived branches can adapt the principles (atomic commits, small changes, descriptive messages) to their branching model — the commit discipline matters more than the specific branching strategy.
+這是建議的預設策略。使用 gitflow 或長期存活 branch 的團隊可以把這些原則（atomic commit、小變更、有描述性的 message）套到自己的 branching model 上 — commit 紀律比特定的 branching 策略更重要。
 
-- **Dev branches are costs.** Every day a branch lives, it accumulates merge risk.
-- **Release branches are acceptable.** When you need to stabilize a release while main moves forward.
-- **Feature flags > long branches.** Prefer deploying incomplete work behind flags rather than keeping it on a branch for weeks.
+- **Dev branch 是成本。** branch 每多活一天，就多累積一天的 merge 風險。
+- **Release branch 可以接受。** 當你需要在 main 繼續推進的同時穩定一個 release。
+- **Feature flag > 長期 branch。** 寧可把未完成的工作部署在 flag 後面，也不要讓它在 branch 上躺好幾週。
 
 ### 1. Commit Early, Commit Often
 
-Each successful increment gets its own commit. Don't accumulate large uncommitted changes.
+每一個成功的增量都要有自己的 commit。不要累積大量未 commit 的變更。
 
 ```
 Work pattern:
@@ -76,11 +76,11 @@ Not this:
   Implement everything → Hope it works → Giant commit
 ```
 
-Commits are save points. If the next change breaks something, you can revert to the last known-good state instantly.
+Commit 是存檔點。如果下一次變更壞了什麼，你可以瞬間回到上一個已知正常的狀態。
 
 ### 2. Atomic Commits
 
-Each commit does one logical thing:
+每個 commit 只做一件邏輯上的事：
 
 ```
 # Good: Each commit is self-contained
@@ -97,7 +97,7 @@ x1y2z3a Add task feature, fix sidebar, update deps, refactor utils
 
 ### 3. Descriptive Messages
 
-Commit messages explain the *why*, not just the *what*:
+Commit message 要解釋 *為什麼*，而不只是 *做了什麼*：
 
 ```
 # Good: Explains intent
@@ -111,24 +111,24 @@ consistent with existing validation patterns in auth.ts.
 update auth.ts
 ```
 
-**Format:**
+**格式：**
 ```
 <type>: <short description>
 
 <optional body explaining why, not what>
 ```
 
-**Types:**
-- `feat` — New feature
-- `fix` — Bug fix
-- `refactor` — Code change that neither fixes a bug nor adds a feature
-- `test` — Adding or updating tests
-- `docs` — Documentation only
-- `chore` — Tooling, dependencies, config
+**Types：**
+- `feat` — 新功能
+- `fix` — bug 修復
+- `refactor` — 既不修 bug 也不加功能的程式碼變更
+- `test` — 新增或更新測試
+- `docs` — 只改文件
+- `chore` — 工具、相依套件、設定
 
 ### 4. Keep Concerns Separate
 
-Don't combine formatting changes with behavior changes. Don't combine refactors with features. Each type of change should be a separate commit — and ideally a separate PR:
+不要把格式變更跟行為變更混在一起。不要把 refactor 跟 feature 混在一起。每一種變更都應該是獨立的 commit — 理想上也是獨立的 PR：
 
 ```
 # Good: Separate concerns
@@ -139,11 +139,11 @@ git commit -m "feat: add phone number validation to registration"
 git commit -m "refactor validation and add phone number field"
 ```
 
-**Separate refactoring from feature work.** A refactoring change and a feature change are two different changes — submit them separately. This makes each change easier to review, revert, and understand in history. Small cleanups (renaming a variable) can be included in a feature commit at reviewer discretion.
+**把 refactor 跟 feature work 分開。** 一次 refactor 跟一次 feature 是兩個不同的變更 — 分別送出。這讓每個變更更容易 review、revert，也更容易在歷史紀錄裡理解。小型清理（例如重新命名變數）可在 reviewer 同意下合進 feature commit。
 
 ### 5. Size Your Changes
 
-Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. See the splitting strategies in `code-review-and-quality` for how to break down large changes.
+每個 commit/PR 目標約 100 行。超過約 1000 行的變更應該拆開。拆解大變更的策略可以參考 `code-review-and-quality`。
 
 ```
 ~100 lines  → Easy to review, easy to revert
@@ -163,10 +163,10 @@ main (always deployable)
   └── fix/duplicate-tasks      ← Bug fixes
 ```
 
-- Branch from `main` (or the team's default branch)
-- Keep branches short-lived (merge within 1-3 days) — long-lived branches are hidden costs
-- Delete branches after merge
-- Prefer feature flags over long-lived branches for incomplete features
+- 從 `main`（或團隊的預設 branch）開出來
+- branch 要短期存活（1-3 天內 merge）— 長期 branch 是隱藏成本
+- merge 完就刪 branch
+- 對未完成的功能，優先採用 feature flag 而不是長期 branch
 
 ### Branch Naming
 
@@ -179,7 +179,7 @@ refactor/<short-description>  → refactor/auth-module
 
 ## Working with Worktrees
 
-For parallel AI agent work, use git worktrees to run multiple branches simultaneously:
+對於平行的 AI agent 工作，使用 git worktree 同時跑多個 branch：
 
 ```bash
 # Create a worktree for a feature branch
@@ -197,11 +197,11 @@ ls ../
 git worktree remove ../project-feature-a
 ```
 
-Benefits:
-- Multiple agents can work on different features simultaneously
-- No branch switching needed (each directory has its own branch)
-- If one experiment fails, delete the worktree — nothing is lost
-- Changes are isolated until explicitly merged
+優點：
+- 多個 agent 可同時在不同 feature 上工作
+- 不需要切 branch（每個目錄各自有自己的 branch）
+- 任何一個實驗失敗就直接刪 worktree — 不會丟失任何東西
+- 變更在被明確 merge 之前都是隔離的
 
 ## The Save Point Pattern
 
@@ -219,11 +219,11 @@ Agent starts work
     └── Feature complete → All commits form a clean history
 ```
 
-This pattern means you never lose more than one increment of work. If an agent goes off the rails, `git reset --hard HEAD` takes you back to the last successful state.
+這個模式代表你最多只會丟失一個增量的工作。如果 agent 偏離正軌，`git reset --hard HEAD` 會把你帶回最後一個成功的狀態。
 
 ## Change Summaries
 
-After any modification, provide a structured summary. This makes review easier, documents scope discipline, and surfaces unintended changes:
+任何修改之後，給一份結構化的摘要。這讓 review 更輕鬆、能記錄 scope 紀律、也會把意外的變更浮上來：
 
 ```
 CHANGES MADE:
@@ -239,11 +239,11 @@ POTENTIAL CONCERNS:
 - Added zod as a dependency (72KB gzipped) — already in package.json
 ```
 
-This pattern catches wrong assumptions early and gives reviewers a clear map of the change. The "DIDN'T TOUCH" section is especially important — it shows you exercised scope discipline and didn't go on an unsolicited renovation.
+這個模式可以提早抓到錯誤的假設，並給 reviewer 一張清楚的變更地圖。「DIDN'T TOUCH」那段尤其重要 — 它顯示你有 scope 紀律，沒有跑去做沒人要的整修。
 
 ## Pre-Commit Hygiene
 
-Before every commit:
+每次 commit 前：
 
 ```bash
 # 1. Check what you're about to commit
@@ -262,7 +262,7 @@ npm run lint
 npx tsc --noEmit
 ```
 
-Automate this with git hooks:
+用 git hook 自動化：
 
 ```json
 // package.json (using lint-staged + husky)
@@ -276,9 +276,9 @@ Automate this with git hooks:
 
 ## Handling Generated Files
 
-- **Commit generated files** only if the project expects them (e.g., `package-lock.json`, Prisma migrations)
-- **Don't commit** build output (`dist/`, `.next/`), environment files (`.env`), or IDE config (`.vscode/settings.json` unless shared)
-- **Have a `.gitignore`** that covers: `node_modules/`, `dist/`, `.env`, `.env.local`, `*.pem`
+- **Commit 產生的檔案** 只在專案預期會有它們時才做（例如 `package-lock.json`、Prisma migration）
+- **不要 commit** build 輸出（`dist/`、`.next/`）、環境檔（`.env`）、或 IDE 設定（`.vscode/settings.json` 除非是共用的）
+- **要有 `.gitignore`** 涵蓋：`node_modules/`、`dist/`、`.env`、`.env.local`、`*.pem`
 
 ## Using Git for Debugging
 
@@ -304,30 +304,30 @@ git log --grep="validation" --oneline
 
 | Rationalization | Reality |
 |---|---|
-| "I'll commit when the feature is done" | One giant commit is impossible to review, debug, or revert. Commit each slice. |
-| "The message doesn't matter" | Messages are documentation. Future you (and future agents) will need to understand what changed and why. |
-| "I'll squash it all later" | Squashing destroys the development narrative. Prefer clean incremental commits from the start. |
-| "Branches add overhead" | Short-lived branches are free and prevent conflicting work from colliding. Long-lived branches are the problem — merge within 1-3 days. |
-| "I'll split this change later" | Large changes are harder to review, riskier to deploy, and harder to revert. Split before submitting, not after. |
-| "I don't need a .gitignore" | Until `.env` with production secrets gets committed. Set it up immediately. |
+| 「我等 feature 做完再 commit」 | 一個巨大的 commit 沒辦法 review、debug、或 revert。每個切片都要 commit。 |
+| 「message 不重要」 | message 是文件。未來的你（與未來的 agent）需要理解改了什麼、為什麼改。 |
+| 「我之後會全部 squash」 | squash 會破壞開發過程的敘事。從一開始就保持乾淨的增量 commit 比較好。 |
+| 「branch 是額外負擔」 | 短期 branch 是免費的，可以避免有衝突的工作互撞。長期 branch 才是問題 — 1-3 天內就要 merge。 |
+| 「這個變更我之後再拆」 | 大變更難 review、部署風險高、也難 revert。在送出前就拆，不是事後拆。 |
+| 「我不需要 .gitignore」 | 直到 `.env` 含正式環境的 secret 被 commit 上去那一刻。立刻設定好。 |
 
 ## Red Flags
 
-- Large uncommitted changes accumulating
-- Commit messages like "fix", "update", "misc"
-- Formatting changes mixed with behavior changes
-- No `.gitignore` in the project
-- Committing `node_modules/`, `.env`, or build artifacts
-- Long-lived branches that diverge significantly from main
-- Force-pushing to shared branches
+- 大量未 commit 的變更累積中
+- commit message 像「fix」、「update」、「misc」
+- 格式變更跟行為變更混在一起
+- 專案沒有 `.gitignore`
+- commit 了 `node_modules/`、`.env`、或 build 產物
+- 長期存活、跟 main 大幅發散的 branch
+- 對共用 branch 做 force-push
 
 ## Verification
 
-For every commit:
+每個 commit：
 
-- [ ] Commit does one logical thing
-- [ ] Message explains the why, follows type conventions
-- [ ] Tests pass before committing
-- [ ] No secrets in the diff
-- [ ] No formatting-only changes mixed with behavior changes
-- [ ] `.gitignore` covers standard exclusions
+- [ ] commit 只做一件邏輯上的事
+- [ ] message 說明了 why，並遵守 type 規範
+- [ ] commit 前 test 都通過
+- [ ] diff 裡沒有 secret
+- [ ] 沒有把純格式變更跟行為變更混在一起
+- [ ] `.gitignore` 涵蓋了標準排除項

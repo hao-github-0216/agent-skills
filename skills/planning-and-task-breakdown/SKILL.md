@@ -1,28 +1,28 @@
 ---
 name: planning-and-task-breakdown
-description: Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.
+description: 將工作拆解為有順序的 task。當你已有 spec 或明確需求、需要把工作拆成可實作的單元時使用。當 task 感覺太大難以下手、需要估算 scope、或可以並行進行時也適用。English: Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.
 ---
 
 # Planning and Task Breakdown
 
 ## Overview
 
-Decompose work into small, verifiable tasks with explicit acceptance criteria. Good task breakdown is the difference between an agent that completes work reliably and one that produces a tangled mess. Every task should be small enough to implement, test, and verify in a single focused session.
+把工作拆解為小型、可驗證的 task，並附上明確的 acceptance criteria。良好的 task 拆解，是「能可靠完成工作的 agent」與「產出一團亂的 agent」之間的差別。每個 task 都應該小到能在一次專注的 session 內完成實作、測試與驗證。
 
 ## When to Use
 
-- You have a spec and need to break it into implementable units
-- A task feels too large or vague to start
-- Work needs to be parallelized across multiple agents or sessions
-- You need to communicate scope to a human
-- The implementation order isn't obvious
-- You're planning a multi-phase ML experiment campaign (sanity → ampere → dgxh)
+- 你已有 spec，需要拆成可實作的單元
+- 某個 task 感覺太大或太模糊難以下手
+- 工作需要在多個 agent 或 session 間平行處理
+- 你需要對人類傳達 scope
+- 實作順序不明顯
+- 你正在規劃多階段的 ML experiment campaign（sanity → ampere → dgxh）
 
-**When NOT to use:** Single-file changes with obvious scope, or when the spec already contains well-defined tasks.
+**不適用的情況：** 單檔變更且 scope 很明顯，或 spec 已經包含定義良好的 task 時。
 
-## ML experiment campaigns — partition escalation as the dependency graph
+## ML experiment campaigns — partition escalation 即為依賴圖
 
-For ML research planning, the dependency graph isn't "module A → module B" but **compute-tier escalation**. Always plan the cheap proof-of-life before the expensive run:
+對於 ML 研究的規劃，依賴圖不是「模組 A → 模組 B」，而是 **compute-tier escalation**。永遠先計畫便宜的 proof-of-life，再進入昂貴的 run：
 
 ```
 Phase 0: SANITY (howardserver local, RTX 3060 Ti, ≤30 min, ≤8GB)
@@ -40,30 +40,30 @@ Phase 2: DGXH (OSU HPC, H100, only if measured >6h on A100 + cuDNN smoke OK)
        Cost: scarce; requires explicit escalation justification
 ```
 
-`dgxh200` partition is BANNED here — never plan for it. `preempt` is for smoke runs only.
+`dgxh200` partition 在這裡被禁用 — 永遠不要把它列入計畫。`preempt` 只適合 smoke run。
 
-Each phase is a checkpoint. **Failure at Phase N means do NOT advance** — diagnose and re-plan. Per-phase tasks should each have an "expected wall time" line so you can tell when something is hung.
+每個 phase 都是一個 checkpoint。**Phase N 失敗代表「不要往下推進」** — 先診斷並重新規劃。每個 phase 的 task 都應該標一行「expected wall time」，這樣才能判斷 job 是否卡住。
 
-Every Phase ≥1 task gets a vault cell (`~/vault/<Project>/Experiments/<tag>.md`) created BEFORE submission. The cell IS the task's acceptance criteria container.
+每個 Phase ≥1 的 task 都要在 submit 之前先建立一個 vault cell（`~/vault/<Project>/Experiments/<tag>.md`）。這個 cell 就是該 task 的 acceptance criteria 容器。
 
-See also `experiment-allocator` skill for picking the right partition per project's allocation rule.
+也可參考 `experiment-allocator` skill，依照各專案的 allocation rule 挑選正確的 partition。
 
 ## The Planning Process
 
-### Step 1: Enter Plan Mode
+### Step 1: 進入 Plan Mode
 
-Before writing any code, operate in read-only mode:
+在寫任何 code 之前，以唯讀模式運作：
 
-- Read the spec and relevant codebase sections
-- Identify existing patterns and conventions
-- Map dependencies between components
-- Note risks and unknowns
+- 閱讀 spec 與相關 codebase 區段
+- 找出既有的 patterns 與慣例
+- 對應元件之間的依賴關係
+- 記下風險與未知數
 
-**Do NOT write code during planning.** The output is a plan document, not implementation.
+**規劃階段不要寫任何 code。** 此階段的產出是一份規劃文件，而不是實作。
 
-### Step 2: Identify the Dependency Graph
+### Step 2: 找出依賴圖
 
-Map what depends on what:
+對應各個元件之間的依賴：
 
 ```
 Database schema
@@ -81,11 +81,11 @@ Database schema
     └── Seed data / migrations
 ```
 
-Implementation order follows the dependency graph bottom-up: build foundations first.
+實作順序依照依賴圖由下往上：先打地基。
 
-### Step 3: Slice Vertically
+### Step 3: 垂直切分
 
-Instead of building all the database, then all the API, then all the UI — build one complete feature path at a time:
+不要先做完所有 database、再做完所有 API、再做完所有 UI — 而是一次完成「一條完整的功能路徑」：
 
 **Bad (horizontal slicing):**
 ```
@@ -103,11 +103,11 @@ Task 3: User can create a task (task schema + API + UI for creation)
 Task 4: User can view task list (query + API + UI for list view)
 ```
 
-Each vertical slice delivers working, testable functionality.
+每個垂直切片都會產出可運作、可測試的功能。
 
-### Step 4: Write Tasks
+### Step 4: 撰寫 Task
 
-Each task follows this structure:
+每個 task 採用以下結構：
 
 ```markdown
 ## Task [N]: [Short descriptive title]
@@ -132,16 +132,16 @@ Each task follows this structure:
 **Estimated scope:** [Small: 1-2 files | Medium: 3-5 files | Large: 5+ files]
 ```
 
-### Step 5: Order and Checkpoint
+### Step 5: 排序與設立 Checkpoint
 
-Arrange tasks so that:
+安排 task，使其滿足：
 
-1. Dependencies are satisfied (build foundation first)
-2. Each task leaves the system in a working state
-3. Verification checkpoints occur after every 2-3 tasks
-4. High-risk tasks are early (fail fast)
+1. 依賴關係已被滿足（先打地基）
+2. 每個 task 完成後系統都處於可運作狀態
+3. 每 2-3 個 task 之間設置驗證 checkpoint
+4. 高風險的 task 排在前面（fail fast）
 
-Add explicit checkpoints:
+加入明確的 checkpoint：
 
 ```markdown
 ## Checkpoint: After Tasks 1-3
@@ -155,19 +155,19 @@ Add explicit checkpoints:
 
 | Size | Files | Scope | Example |
 |------|-------|-------|---------|
-| **XS** | 1 | Single function or config change | Add a validation rule |
-| **S** | 1-2 | One component or endpoint | Add a new API endpoint |
-| **M** | 3-5 | One feature slice | User registration flow |
-| **L** | 5-8 | Multi-component feature | Search with filtering and pagination |
-| **XL** | 8+ | **Too large — break it down further** | — |
+| **XS** | 1 | 單一函式或 config 變更 | 新增一條 validation rule |
+| **S** | 1-2 | 一個元件或 endpoint | 新增一個 API endpoint |
+| **M** | 3-5 | 一個功能切片 | 使用者註冊流程 |
+| **L** | 5-8 | 多元件功能 | 含篩選與分頁的搜尋 |
+| **XL** | 8+ | **太大 — 應再拆細** | — |
 
-If a task is L or larger, it should be broken into smaller tasks. An agent performs best on S and M tasks.
+如果一個 task 是 L 或更大，就應該拆成更小的 task。Agent 在 S 與 M 規模的 task 上表現最佳。
 
-**When to break a task down further:**
-- It would take more than one focused session (roughly 2+ hours of agent work)
-- You cannot describe the acceptance criteria in 3 or fewer bullet points
-- It touches two or more independent subsystems (e.g., auth and billing)
-- You find yourself writing "and" in the task title (a sign it is two tasks)
+**何時要再拆細：**
+- 需要超過一次專注 session 才能完成（大致超過 2 小時的 agent 工作量）
+- 你無法以 3 點以內的 bullet 描述 acceptance criteria
+- 它會碰到兩個以上彼此獨立的子系統（例如 auth 與 billing）
+- 你發現自己在 task 標題裡寫「以及」（這是兩個 task 的徵兆）
 
 ## Plan Document Template
 
@@ -216,37 +216,37 @@ If a task is L or larger, it should be broken into smaller tasks. An agent perfo
 
 ## Parallelization Opportunities
 
-When multiple agents or sessions are available:
+當有多個 agent 或 session 可用時：
 
-- **Safe to parallelize:** Independent feature slices, tests for already-implemented features, documentation
-- **Must be sequential:** Database migrations, shared state changes, dependency chains
-- **Needs coordination:** Features that share an API contract (define the contract first, then parallelize)
+- **可安全並行：** 互相獨立的功能切片、為已實作功能補上的測試、文件
+- **必須循序執行：** Database migrations、共享狀態變更、依賴鏈
+- **需要協調：** 共用同一份 API contract 的功能（先定義 contract，再並行）
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "I'll figure it out as I go" | That's how you end up with a tangled mess and rework. 10 minutes of planning saves hours. |
-| "The tasks are obvious" | Write them down anyway. Explicit tasks surface hidden dependencies and forgotten edge cases. |
-| "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
-| "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
+| 「邊做邊想就好」 | 這正是後來變成一團亂、需要重做的原因。10 分鐘的規劃可省下數小時。 |
+| 「這些 task 很明顯」 | 還是寫下來。明確的 task 會浮現潛藏的依賴與被遺漏的邊界情境。 |
+| 「規劃是額外負擔」 | 規劃就是工作本身。沒有計畫的實作只是在打字。 |
+| 「我可以全部記在腦袋裡」 | Context window 是有限的。寫下來的計畫能跨越 session 邊界與 compaction。 |
 
 ## Red Flags
 
-- Starting implementation without a written task list
-- Tasks that say "implement the feature" without acceptance criteria
-- No verification steps in the plan
-- All tasks are XL-sized
-- No checkpoints between tasks
-- Dependency order isn't considered
+- 沒有寫下 task 列表就開始實作
+- task 只寫「實作這個功能」卻沒有 acceptance criteria
+- 計畫裡沒有任何驗證步驟
+- 所有 task 都是 XL 規模
+- task 之間沒有 checkpoint
+- 沒有考慮依賴順序
 
 ## Verification
 
-Before starting implementation, confirm:
+在開始實作之前，確認：
 
-- [ ] Every task has acceptance criteria
-- [ ] Every task has a verification step
-- [ ] Task dependencies are identified and ordered correctly
-- [ ] No task touches more than ~5 files
-- [ ] Checkpoints exist between major phases
-- [ ] The human has reviewed and approved the plan
+- [ ] 每個 task 都有 acceptance criteria
+- [ ] 每個 task 都有驗證步驟
+- [ ] task 依賴已被識別並正確排序
+- [ ] 沒有任何 task 動到超過約 5 個檔案
+- [ ] 主要 phase 之間都設有 checkpoint
+- [ ] 人類已審閱並核准此計畫

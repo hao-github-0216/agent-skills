@@ -1,15 +1,15 @@
 ---
-description: Start spec-driven development — write a structured specification before writing code
+description: 開始 spec-driven development — 在寫 code 之前先寫一份結構化的 spec。English: Start spec-driven development — write a structured specification before writing code
 ---
 
-Invoke the agent-skills:spec-driven-development skill.
+呼叫 agent-skills:spec-driven-development skill。
 
-Begin by understanding what the user wants to build. Ask clarifying questions about:
-1. The objective and target users
-2. Core features and acceptance criteria
-3. Tech stack preferences and constraints
-4. Known boundaries (what to always do, ask first about, and never do)
+從理解使用者想 build 什麼開始。針對以下提出釐清問題：
+1. 目標與目標使用者
+2. 核心功能與 acceptance criteria
+3. Tech stack 偏好與限制
+4. 已知邊界（永遠要做的事、要先問過的事、絕不能做的事）
 
-Then generate a structured spec covering all six core areas: objective, commands, project structure, code style, testing strategy, and boundaries.
+然後產生一份結構化的 spec，涵蓋全部六個核心區塊：objective、commands、project structure、code style、testing strategy、boundaries。
 
-Save the spec as SPEC.md in the project root and confirm with the user before proceeding.
+把 spec 存成專案根目錄的 SPEC.md，並在繼續之前向使用者確認。
